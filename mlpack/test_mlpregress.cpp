@@ -18,8 +18,20 @@ double R2Score(const arma::rowvec& actual, const arma::rowvec& predicted)
     return 1 - (ssRes / ssTot);
 }
 */
-int main()
+
+int main(int argc, char** argv)
 {
+    bool train_only = false, predict_only = false;
+    if (argc > 1) {
+        if (strcmp(argv[1], "--train") == 0) {
+            train_only = true;
+        } else if (strcmp(argv[1], "--predict") == 0) {
+            predict_only = true;
+        } else {
+            std::cerr << "Unrecognized argument, running both training and predicting." << std::endl;
+        }
+    }
+
     // Enable verbose logging
     Log::Info.ignoreInput = false;
     Log::Warn.ignoreInput = false;
@@ -33,7 +45,7 @@ int main()
     model.InputDimensions() = std::vector<size_t>({4}); // Input size = 4 features
 
     // Add layers: 4-input → 64 → 64 → 64 → 1-output
-    model.Add<Linear>(128);  
+    model.Add<Linear>(128);
     model.Add<ReLU>();
     model.Add<Linear>(128);
     model.Add<ReLU>();
@@ -56,12 +68,12 @@ int main()
     }
     std::cout << "dataset.n_rows: " << dataset.n_rows << std::endl;
     std::cout << "dataset.n_cols: " << dataset.n_cols <<std::endl;
-    
+
     // Extract features (first 4 cols) and labels (last col)
     arma::mat features = dataset.rows(0, 3);  // First 4 cols
     arma::mat labels = dataset.row(4);        // Last col (output)
 
-    if (true) {
+    if (!predict_only) {
         // Set up optimizer (Adam with learning rate 0.01)
         ens::Adam optimizer(0.01,  // Learning rate
                             128,    // Batch size
@@ -73,11 +85,10 @@ int main()
                             true); // Shuffle data every epoch
 
         // Train model
-        
         auto start = high_resolution_clock::now();
         model.Train(features, labels, optimizer);
         auto end = high_resolution_clock::now();
-        
+
         // Training time
         double totalTime = duration_cast<milliseconds>(end - start).count();
         std::cout << "Training completed in " << totalTime / 1000.0 << " seconds.\n";
@@ -87,42 +98,51 @@ int main()
         std::cout << "Model saved as mlp_model.bin\n";
     }
 
-    // Test input: Single sample with 4 features
-    arma::mat input = arma::randu<arma::mat>(4, 1);
-    arma::mat output;
+    if (!train_only) {
+        // load data from file
+        if (predict_only) {
+            if (!data::Load("mlp_model.bin", "model", model)) {
+                throw std::runtime_error("Could not read model!");
+            }
+        }
 
-    // Warm-up runs (avoid first-run overhead)
-    for (int i = 0; i < 10; i++)
-        model.Predict(input, output);
+        // Test input: Single sample with 4 features
+        arma::mat input = arma::randu<arma::mat>(4, 1);
+        arma::mat output;
 
-    // Benchmarking
-    int iterations = 10000; // Run multiple predictions
-    auto start = high_resolution_clock::now();
-    
-    for (int i = 0; i < iterations; i++)
-        model.Predict(input, output);
-    
-    auto end = high_resolution_clock::now();
+        // Warm-up runs (avoid first-run overhead)
+        for (int i = 0; i < 10; i++)
+            model.Predict(input, output);
 
-    // Compute time per prediction
-    double totalTime = duration_cast<nanoseconds>(end - start).count() / 1e6; // Convert to milliseconds
-    double avgTime = totalTime / iterations;
+        // Benchmarking
+        int iterations = 10000; // Run multiple predictions
+        auto start = high_resolution_clock::now();
 
-    // Output results
-    std::cout << "Total Time: " << totalTime << " ms for " << iterations << " predictions.\n";
-    std::cout << "Average Time per Prediction: " << avgTime << " ms (" << avgTime * 1000 << " µs)\n";
-    
-    // **Make Predictions for Training Data**
-    //arma::mat predictions;
-    //model.Predict(features, predictions);
-    //Log::Info << "Predictions completed." << std::endl;
+        for (int i = 0; i < iterations; i++)
+            model.Predict(input, output);
 
-    // **Calculate and Display R² Score**
-    //double r2Score = R2Score(labels, predictions.row(0));
-    mlpack::R2Score<false> r2;
-    arma::rowvec l = labels.row(0);
-    double r2Score = r2.Evaluate(model, features, l);
-    Log::Info << "R² Score on Training Data: " << r2Score << std::endl;
+        auto end = high_resolution_clock::now();
+
+        // Compute time per prediction
+        double totalTime = duration_cast<nanoseconds>(end - start).count() / 1e6; // Convert to milliseconds
+        double avgTime = totalTime / iterations;
+
+        // Output results
+        std::cout << "Total Time: " << totalTime << " ms for " << iterations << " predictions.\n";
+        std::cout << "Average Time per Prediction: " << avgTime << " ms (" << avgTime * 1000 << " µs)\n";
+
+        // **Make Predictions for Training Data**
+        //arma::mat predictions;
+        //model.Predict(features, predictions);
+        //Log::Info << "Predictions completed." << std::endl;
+
+        // **Calculate and Display R² Score**
+        //double r2Score = R2Score(labels, predictions.row(0));
+        mlpack::R2Score<false> r2;
+        arma::rowvec l = labels.row(0);
+        double r2Score = r2.Evaluate(model, features, l);
+        Log::Info << "R² Score on Training Data: " << r2Score << std::endl;
+    }
 
     return 0;
 }
