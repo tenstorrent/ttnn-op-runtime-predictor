@@ -1,3 +1,4 @@
+#define MLPACK_ENABLE_ANN_SERIALIZATION
 
 #include <mlpack.hpp>
 
@@ -35,7 +36,7 @@ int main(int argc, char** argv)
     // Enable verbose logging
     Log::Info.ignoreInput = false;
     Log::Warn.ignoreInput = false;
-    Log::Debug.ignoreInput = false;  // Only visible with -DDEBUG during compilation
+    //Log::Debug.ignoreInput = false;  // Only visible with -DDEBUG during compilation
 
 
     // Define MLP model with predefined structure
