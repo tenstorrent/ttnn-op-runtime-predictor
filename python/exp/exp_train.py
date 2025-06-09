@@ -19,10 +19,14 @@ def read_dataset(file_path, filter_condition):
             if row:  # Apply filter condition
                 #inputs.append([int(x) for x in row[4:-3]] + [(int(row[-2]) * int(row[-3])) // (32 * 32)])  # Convert remaining inputs to float
                 #outputs.append(float(row[-1]))  # Convert output to float
+                print(row)
                 if row[2] == "0":
-                    inputs.append([(int(row[0]) // 32)] + [(int(row[1]) // 32)] + [int(x) for x in row[2:8]])
+                    inputs.append([(int(row[0]) // 32)] + [(int(row[1]) // 32)] + [int(x) for x in row[2:11]]) #change 7 to 11 for one hot dtype
+                    print("divided first 2")
+                elif row[3] == "0":
+                    inputs.append([int(row[0])] + [(int(row[1]) // 32)] + [(int(row[2]) // 32)] + [int(x) for x in row[3:11]]) #here too
                 else:
-                    inputs.append([row[0]] + [(int(row[1]) // 32)] + [(int(row[2]) // 32)] + [int(x) for x in row[3:8]])
+                    inputs.append([int(row[0])] + [int(row[1])] + [(int(row[2]) // 32)] + [(int(row[3]) // 32)] + [int(x) for x in row[4:11]])
                 outputs.append(float(row[-1]))
     
     return inputs, outputs
@@ -33,7 +37,7 @@ def train_mlp_regressor(inputs, outputs):
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=seed)
     
     scaler = StandardScaler()
-    model = MLPRegressor(hidden_layer_sizes=(128, 128, 128), max_iter=1500, solver="adam", batch_size=512, random_state=seed, verbose=1, learning_rate_init=0.001)
+    model = MLPRegressor(hidden_layer_sizes=(256, 128, 128), max_iter=2000, solver="adam", batch_size=128, random_state=seed, verbose=1, learning_rate_init=0.001)
     pipeline = Pipeline([
         ('scaler', scaler),
         ('mlp', model)
@@ -71,7 +75,7 @@ def pkl_to_csv(path):
 
 
 if __name__ == "__main__":
-    file_path = "big_exp_dataset.csv"  # Change this to your actual file path
+    file_path = "final_exp_dataset.csv"  # Change this to your actual file path
     filter_condition = []  # Change filter condition as needed
     inputs, outputs = read_dataset(file_path, filter_condition)
     
@@ -86,5 +90,5 @@ if __name__ == "__main__":
     print(outputs[:5])
     
     model = train_mlp_regressor(inputs, outputs)
-    joblib.dump(model, 'exp_model.pkl')
+    joblib.dump(model, 'final_exp_model_ord.pkl')
     #pkl_to_csv("exp_model.pkl")
