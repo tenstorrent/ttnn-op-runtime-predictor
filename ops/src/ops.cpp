@@ -1,5 +1,4 @@
 #include "../include/ops.hpp"
-#include "../../interface/include/interface.hpp"
 
 uint64_t predict_exp_runtime(nlohmann::json tensor_and_shape_jsons, nlohmann::json optional_output_layout){
     //set exp model parameters

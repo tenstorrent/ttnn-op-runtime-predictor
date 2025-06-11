@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
-find_package(Armadillo REQUIRED)
-find_package(nlohmann_json REQUIRED)
+#find_package(Armadillo REQUIRED)
+#find_package(nlohmann_json REQUIRED)
 
 include(CTest)
 
@@ -25,8 +25,8 @@ set(EXTERNAL_LIBRARIES
 )
 
 add_subdirectory(interface)
-add_subdirectory(ops)
+#add_subdirectory(ops)
 add_subdirectory(tests)
 
-add_executable(main main.cpp)
-target_include_directories(main PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${EXTERNAL_LIBRARIES} ${EXTERNAL_INCLUDE_DIRS})
+# add_executable(main main.cpp)
+# target_include_directories(main PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/interface/include ${EXTERNAL_LIBRARIES} ${EXTERNAL_INCLUDE_DIRS})

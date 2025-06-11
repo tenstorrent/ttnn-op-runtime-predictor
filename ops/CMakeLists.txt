@@ -7,6 +7,6 @@ target_sources(ops_library PRIVATE ${OPS_SRC})
 
 target_link_libraries(ops_library PUBLIC
     interface_library
-    Armadillo
+    #Armadillo
     
 )

@@ -24,7 +24,8 @@ uint64_t get_runtime_from_model(std::string op_name, Args&& ... args){
 
     //determine op
     if (op_name == "ttnn::exp") {
-        return predict_exp_runtime(std::forward<Args>(args)...);
+        //return predict_exp_runtime(std::forward<Args>(args)...);
+        return 1;
     } else {
         return 0;
     }

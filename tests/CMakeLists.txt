@@ -8,10 +8,11 @@ enable_testing()
 
 add_executable(
   test_interface
-  test_interface.cc
+  test_interface.cpp
 )
 
 target_link_libraries(test_interface PUBLIC
+  interface_library
   GTest::gtest_main
 )
 
