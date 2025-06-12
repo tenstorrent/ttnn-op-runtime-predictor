@@ -4,6 +4,8 @@ FetchContent_Declare(
   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
 )
 
+add_definitions(-DARMA_DONT_USE_WRAPPER)
+
 enable_testing()
 
 add_executable(
@@ -14,6 +16,7 @@ add_executable(
 target_link_libraries(test_interface PUBLIC
   interface_library
   GTest::gtest_main
+  ${Armadillo_LIBRARIES}
 )
 
 include(GoogleTest)

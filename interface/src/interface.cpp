@@ -18,15 +18,3 @@ auto load_mlpack_model(const std::string& model_path, int input_size, std::vecto
     data::Load(model_path, "model", model);
    return model;
 }
-
-template<typename ... Args>
-uint64_t get_runtime_from_model(std::string op_name, Args&& ... args){
-
-    //determine op
-    if (op_name == "ttnn::exp") {
-        //return predict_exp_runtime(std::forward<Args>(args)...);
-        return 1;
-    } else {
-        return 0;
-    }
-}

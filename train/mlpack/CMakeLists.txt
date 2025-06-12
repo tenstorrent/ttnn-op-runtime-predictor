@@ -30,11 +30,3 @@ FetchContent_Declare(
 
 add_executable(test_mlpregress test_mlpregress.cpp)
 target_link_libraries(test_mlpregress armadillo)
-
-enable_testing()
-
-#add_executable(test2 test2.cc)
-#target_link_libraries(test2 GTest::gtest_main)
-
-include(GoogleTest)
-#gtest_discover_tests(test2)

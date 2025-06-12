@@ -7,11 +7,9 @@
 
 #include <nlohmann/json.hpp>
 
+#include <mlpack.hpp>
 #include <mlpack/core.hpp>
-#include <mlpack/methods/ann/ffn.hpp>
-#include <mlpack/methods/ann/layer/layer.hpp>
-#include <mlpack/methods/ann/init_rules/random_init.hpp>
-#include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
+#include <mlpack/methods/ann/ann.hpp>
 
 #include <armadillo>
 
