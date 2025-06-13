@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdint>
 #include <iostream>
+#include <optional>
 
 #include <nlohmann/json.hpp>
 

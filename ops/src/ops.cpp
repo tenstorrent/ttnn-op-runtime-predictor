@@ -1,15 +1,19 @@
 #include "../include/ops.hpp"
 
 uint64_t predict_exp_runtime(nlohmann::json tensor_and_shape_jsons, nlohmann::json optional_output_layout){
-    //set exp model parameters
+    //set exp model parameters and model path
     int input_size = 11;
     std::vector<int> hidden_layers = {128, 128, 128};
+    std::string model_path = "mlp_folder/exp_model.bin"; //placeholder filepath
 
     //load mlp
-    auto model = load_mlpack_model("mlp_folder/exp_model.bin", input_size, hidden_layers);
-    //error check? return 0 if this fails
+    auto model_optional = load_mlpack_model(model_path, input_size, hidden_layers);
+    if(!model_optional.has_value()){
+        return 0;
+    }
+    auto& model = *model_optional;
 
-    //get input, process it into arma::vec
+    //get input, process it into arma::vec. This is likely to change when exp mlp is trained
     //specify dimension
     auto dim_list = tensor_and_shape_jsons[1];
     int dim1 = 0, dim2 = 0, dim3 = 0, dim4 = 0;
@@ -51,7 +55,8 @@ uint64_t predict_exp_runtime(nlohmann::json tensor_and_shape_jsons, nlohmann::js
         l1 = 1;
     }
 
-    //create input and output vectors .... need to typecast?
+    //create input and output vectors. This is subject to change based on how categorical data is encoded in model
+    //current implementation is onehot encoding for datatype and memory_config
     arma::vec input = {
 
         static_cast<double>(dim1),
@@ -68,8 +73,9 @@ uint64_t predict_exp_runtime(nlohmann::json tensor_and_shape_jsons, nlohmann::js
     };
     arma::vec output(1);
 
-    //run the model
+    //model inference
     model.Predict(input, output);
+    
     return output(0);
 
 }

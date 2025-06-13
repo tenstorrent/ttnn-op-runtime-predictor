@@ -1,9 +1,8 @@
-//skeleton code for mlp side query interface
 #include "../include/interface.hpp"
 
-auto load_mlpack_model(const std::string& model_path, int input_size, std::vector<int> hidden_layers){
+std::optional<FFN<MeanSquaredError, RandomInitialization>> load_mlpack_model(const std::string& model_path, int input_size, std::vector<int> hidden_layers){
 
-    //init model architecture
+    //initialize model architecture
     FFN<MeanSquaredError, RandomInitialization> model;
     model.InputDimensions() = std::vector<size_t>({static_cast<unsigned long>(input_size)});
 
@@ -15,6 +14,11 @@ auto load_mlpack_model(const std::string& model_path, int input_size, std::vecto
     model.Add<Linear>(1);
 
     //load model from path
-    data::Load(model_path, "model", model);
+    try{
+        data::Load(model_path, "model", model);
+    }catch(const std::exception& e){
+        return std::nullopt;
+    }
+    
    return model;
 }
