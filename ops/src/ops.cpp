@@ -27,19 +27,19 @@ uint64_t predict_exp_runtime(nlohmann::json tensor_and_shape_jsons, nlohmann::js
     int ttnn_tensor_dtype = tensor_and_shape_jsons[0]["tensor_spec"]["tensor_layout"]["dtype"];
     int bfloat16 = 0, float32 = 0, uint32 = 0, bfloat8_b = 0, uint16 = 0;
     switch(ttnn_tensor_dtype){
-        case 0: 
+        case BFLOAT16: 
             bfloat16 = 1; 
             break;
-        case 1: 
+        case FLOAT32: 
             float32 = 1; 
             break;
-        case 2: 
+        case UINT32: 
             uint32 = 1; 
             break;
-        case 3:    
+        case BFLOAT8_B:    
             bfloat8_b = 1; 
             break;
-        case 6: 
+        case UINT16: 
             uint16 = 1; 
             break;
         default: 
