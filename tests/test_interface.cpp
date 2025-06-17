@@ -1,7 +1,8 @@
-#include "interface/interface.hpp"
 #include <gtest/gtest.h>
 #include <mlpack.hpp>
 #include <nlohmann/json.hpp>
+
+#include "interface/interface.hpp"
 
 // tests for get_runtime_from_model_test()
 

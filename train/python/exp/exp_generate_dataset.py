@@ -1,10 +1,18 @@
 import json
 
-import re
-
-#breaks up str "[1, 2, 3, 4]" into 1, 2, 3, 4 in 4 lists
 def parse_ints_from_string(text):
-    return [int(s) for s in re.findall(r'\d+', text)]
+    #remove brackets
+    text = text.strip("[]")
+    #split numbers by commas
+    numbers = text.split(",")
+
+    #cast to int if number exists (number.strip() is not empty)
+    result = []
+    for number in numbers:
+        number = number.strip()
+        if number:
+            result.append(int(number))
+    return result
 
 #load .json files from sweeps filedump
 results_file = open('big_exp_results.json')
