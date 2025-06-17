@@ -23,6 +23,49 @@ std::optional<mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization
    return model;
 }
 
+std::vector<int> get_one_hot_dtype(const int& dtype){
+
+    //vector datatypes in order: BFLOAT8_B, BFLOAT16, FLOAT32, UINT16, UINT32
+    std::vector<int> onehot_dtype(5, 0);
+
+    switch(dtype){
+        case BFLOAT8_B: 
+            onehot_dtype[0] = 1;
+            break;
+        case BFLOAT16: 
+            onehot_dtype[1] = 1;
+            break;
+        case FLOAT32: 
+            onehot_dtype[2] = 1;
+            break;
+        case UINT16:    
+            onehot_dtype[3] = 1;
+            break;
+        case UINT32: 
+            onehot_dtype[4] = 1;
+            break;
+        default: 
+            break;
+    }
+
+    return onehot_dtype;
+
+}
+
+std::vector<int> get_memory_config(const int& memory_config){
+
+    //memory_config in order: DRAM, L1
+    std::vector<int> mem_cfg_vector(2, 0);
+
+    if(memory_config == 0){
+        mem_cfg_vector[0] = 1;
+    }else{
+        mem_cfg_vector[1] = 1;
+    }
+
+    return mem_cfg_vector;
+}
+
 uint64_t predict_exp_runtime(const nlohmann::json& tensor_and_shape_jsons, const nlohmann::json& optional_output_layout){
     //set exp model parameters and model path
     const int input_size = 11;
@@ -37,62 +80,37 @@ uint64_t predict_exp_runtime(const nlohmann::json& tensor_and_shape_jsons, const
     auto& model = *model_optional;
 
     //get input, process it into arma::vec. This is likely to change when exp mlp is trained
+
     //specify dimension
-    auto dim_list = tensor_and_shape_jsons[1];
-    int dim1 = 0, dim2 = 0, dim3 = 0, dim4 = 0;
-    int size = dim_list.size();
-    if(size >= 1) dim1 = dim_list[0];
-    if(size >= 2) dim2 = dim_list[1];
-    if(size >= 3) dim3 = dim_list[2];
-    if(size >= 4) dim4 = dim_list[3];
+    auto tensor_dim_array = tensor_and_shape_jsons[1];
+    if(tensor_dim_array.size() > 4){
+        //max allowed tensor dim is 4
+        return 0;
+    }
 
     //specify datatype
     int ttnn_tensor_dtype = tensor_and_shape_jsons[0]["tensor_spec"]["tensor_layout"]["dtype"];
-    int bfloat16 = 0, float32 = 0, uint32 = 0, bfloat8_b = 0, uint16 = 0;
-    switch(ttnn_tensor_dtype){
-        case BFLOAT16: 
-            bfloat16 = 1; 
-            break;
-        case FLOAT32: 
-            float32 = 1; 
-            break;
-        case UINT32: 
-            uint32 = 1; 
-            break;
-        case BFLOAT8_B:    
-            bfloat8_b = 1; 
-            break;
-        case UINT16: 
-            uint16 = 1; 
-            break;
-        default: 
-            break;
-    }
+    std::vector<int> onehot_dtype = get_one_hot_dtype(ttnn_tensor_dtype);
 
-    //specify dram or l1 memory_config
-    int dram = 0, l1 = 0;
-    auto mem_cfg = tensor_and_shape_jsons[0]["tensor_spec"]["tensor_layout"]["memory_config"]["buffer_type"];
-    if(mem_cfg == 0){
-        dram = 1;
-    }else{
-        l1 = 1;
-    }
+    //specify memory_config
+    int mem_cfg = tensor_and_shape_jsons[0]["tensor_spec"]["tensor_layout"]["memory_config"]["buffer_type"];
+    std::vector<int> memory_config = get_memory_config(mem_cfg);
 
     //create input and output vectors. This is subject to change based on how categorical data is encoded in model
     //current implementation is onehot encoding for datatype and memory_config
     arma::vec input = {
 
-        static_cast<double>(dim1),
-        static_cast<double>(dim2),
-        static_cast<double>(dim3),
-        static_cast<double>(dim4),
-        static_cast<double>(bfloat8_b),
-        static_cast<double>(bfloat16),
-        static_cast<double>(float32),
-        static_cast<double>(uint16),
-        static_cast<double>(uint32),
-        static_cast<double>(dram),
-        static_cast<double>(l1)
+        static_cast<double>(tensor_dim_array[0]),
+        static_cast<double>(tensor_dim_array[1]),
+        static_cast<double>(tensor_dim_array[2]),
+        static_cast<double>(tensor_dim_array[3]),
+        static_cast<double>(onehot_dtype[0]),
+        static_cast<double>(onehot_dtype[1]),
+        static_cast<double>(onehot_dtype[2]),
+        static_cast<double>(onehot_dtype[3]),
+        static_cast<double>(onehot_dtype[4]),
+        static_cast<double>(memory_config[0]),
+        static_cast<double>(memory_config[1])
     };
     arma::vec output(1);
 

@@ -32,6 +32,9 @@ std::optional<mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization
     const std::vector<int>& hidden_layers
 );
 
+std::vector<int> get_one_hot_dtype(const int& dtype);
+std::vector<int> get_memory_config(const int& memory_config);
+
 uint64_t predict_exp_runtime(
     const nlohmann::json& tensor_and_shape_jsons,
     const nlohmann::json& optional_output_layout
