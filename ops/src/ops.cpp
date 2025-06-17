@@ -1,4 +1,7 @@
 #include "ops/include/ops.hpp"
+#include "ops/include/model.hpp"
+
+namespace op_perf{
 
 std::optional<
     mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>>
@@ -79,7 +82,7 @@ uint64_t predict_exp_runtime(const nlohmann::json &tensor_and_shape_jsons,
 
   // load mlp
   auto model_optional =
-      load_mlpack_model(model_path, input_size, hidden_layers);
+      op_perf::load_mlpack_model(model_path, input_size, hidden_layers);
   if (!model_optional.has_value()) {
     return 0;
   }
@@ -128,3 +131,5 @@ uint64_t predict_exp_runtime(const nlohmann::json &tensor_and_shape_jsons,
 
   return output(0);
 }
+
+}//namespace op_perf

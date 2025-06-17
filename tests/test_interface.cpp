@@ -4,6 +4,8 @@
 
 #include "interface/interface.hpp"
 
+using namespace op_perf;
+
 // tests for get_runtime_from_model_test()
 
 class GetRuntimeFromModelIsExpNoArgs
