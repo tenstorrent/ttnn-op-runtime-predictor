@@ -6,15 +6,11 @@
 #include <iostream>
 #include <optional>
 
-#include <nlohmann/json.hpp>
-
 #include <mlpack.hpp>
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ann.hpp>
-
+#include <nlohmann/json.hpp>
 #include <armadillo>
-
-#include "../../interface/include/interface.hpp"
 
 typedef enum {
     
@@ -29,6 +25,12 @@ typedef enum {
     INVALID = 8,
 
 } DType;
+
+std::optional<mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>> load_mlpack_model(
+    const std::string& model_path,
+    const int input_size,
+    const std::vector<int>& hidden_layers
+);
 
 uint64_t predict_exp_runtime(
     const nlohmann::json& tensor_and_shape_jsons,

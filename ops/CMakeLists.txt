@@ -18,6 +18,5 @@ file(GLOB_RECURSE OPS_SRC src/*.cpp)
 target_sources(ops_library PRIVATE ${OPS_SRC})
 
 target_link_libraries(ops_library PUBLIC
-    interface_library
     ${EXTERNAL_LIBRARIES}
 )

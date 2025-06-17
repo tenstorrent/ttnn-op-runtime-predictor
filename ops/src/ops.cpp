@@ -1,10 +1,33 @@
-#include "../include/ops.hpp"
+#include "ops/include/ops.hpp"
 
-uint64_t predict_exp_runtime(nlohmann::json tensor_and_shape_jsons, nlohmann::json optional_output_layout){
+std::optional<mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>> load_mlpack_model(const std::string& model_path, int input_size, const std::vector<int>& hidden_layers){
+
+    //initialize model architecture
+    mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization> model;
+    model.InputDimensions() = std::vector<size_t>({static_cast<unsigned long>(input_size)});
+
+    int num_hidden_layers = hidden_layers.size();
+    for(int i = 0; i < num_hidden_layers; i++){
+        model.Add<mlpack::Linear>(hidden_layers[i]);
+        model.Add<mlpack::ReLU>();
+    }
+    model.Add<mlpack::Linear>(1);
+
+    //load model from path
+    try{
+        mlpack::data::Load(model_path, "model", model);
+    }catch(const std::exception& e){
+        return std::nullopt;
+    }
+    
+   return model;
+}
+
+uint64_t predict_exp_runtime(const nlohmann::json& tensor_and_shape_jsons, const nlohmann::json& optional_output_layout){
     //set exp model parameters and model path
-    int input_size = 11;
-    std::vector<int> hidden_layers = {128, 128, 128};
-    std::string model_path = "mlp_folder/exp_model.bin"; //placeholder filepath
+    const int input_size = 11;
+    const std::vector<int> hidden_layers = {128, 128, 128};
+    const std::string model_path = "mlp_folder/exp_model.bin"; //placeholder filepath
 
     //load mlp
     auto model_optional = load_mlpack_model(model_path, input_size, hidden_layers);
