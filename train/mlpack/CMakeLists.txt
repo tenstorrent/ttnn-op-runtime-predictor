@@ -4,6 +4,7 @@ project(OpModeling LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(Armadillo REQUIRED)
+find_package(GTest REQUIRED)
 
 if (APPLE)
     # TODO: replace "/opt/homebrew" with the output of `brew --prefix`
@@ -20,6 +21,12 @@ elseif (LINUX)
         endif()
     endif()
 endif()
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
 
 add_executable(test_mlpregress test_mlpregress.cpp)
 target_link_libraries(test_mlpregress armadillo)

@@ -1,0 +1,85 @@
+import json
+
+def parse_ints_from_string(text):
+    #remove brackets
+    text = text.strip("[]")
+    #split numbers by commas
+    numbers = text.split(",")
+
+    #cast to int if number exists (number.strip() is not empty)
+    result = []
+    for number in numbers:
+        number = number.strip()
+        if number:
+            result.append(int(number))
+    return result
+
+#load .json files from sweeps filedump
+results_file = open('big_exp_results.json')
+test_vectors_file = open('big_exp_test_vectors.json')
+
+results = json.load(results_file)
+test_vectors = json.load(test_vectors_file)
+
+results_file.close()
+test_vectors_file.close()
+
+#get relevant inputs from test_vectors
+input_shape = [[], [], [], []]
+dtype = [[], []] #bfloat8, bfloat16
+input_mem_config = [[], []] #DRAM_MEMORY_CONFIG, L1_MEMORY_CONFIG
+
+for suite in test_vectors.keys():
+    vectors = test_vectors[suite]
+    for id in vectors.keys():
+        dict = vectors[id]
+        input = parse_ints_from_string(dict["input_shape"])
+        input_dtype = dict["input_a_dtype"]
+        input_memcfg = dict["input_a_memory_config"]
+        output_memcfg = dict["output_memory_config"]
+        input_memcfg = input_memcfg["data"]
+        output_memcfg = output_memcfg["data"]
+        print(type(input_memcfg))
+        print(input_memcfg)
+        #get input shape
+        for i in range(4): # is max num of dimensions of tensor
+            if i < len(input):
+               input_shape[i].append(input[i])
+            else:
+                input_shape[i].append(0)
+        #get dtype in one-hot encoding
+        if input_dtype == "DataType.BFLOAT16":
+            dtype[0].append(0)
+            dtype[1].append(1)
+        elif input_dtype == "DataType.BFLOAT8_B":
+            dtype[0].append(1)
+            dtype[1].append(0)
+        #get memcfg in one hot encodings
+        if input_memcfg == "{\"buffer_type\":0,\"memory_layout\":0}":
+            input_mem_config[0].append(1)
+            input_mem_config[1].append(0)
+        if input_memcfg == "{\"buffer_type\":1,\"memory_layout\":0}":
+            input_mem_config[0].append(0)
+            input_mem_config[1].append(1)
+
+#get output from results.json
+kernel_duration = []
+for i in range(len(results)):
+    dict = results[i]
+    if "device_perf" not in dict.keys():
+        kernel_duration.append(-1)
+        continue
+    device_perf_dict = dict["device_perf"]
+    kernel_duration.append(int(device_perf_dict["DEVICE KERNEL DURATION [ns]"]))
+
+print(input_shape)
+
+#create csv file
+with open('big_exp_dataset.csv', 'w') as f:
+    f.write("input_shape_1,input_shape_2,input_shape_3,input_shape_4,bfloat8,bfloat16,INPUTBUFFER0,INPUTBUFFER1,kernel_duration\n")
+    for i in range(len(input_shape[0])):
+        if kernel_duration[i] == -1:
+            continue
+        f.write(f"{input_shape[0][i]},{input_shape[1][i]},{input_shape[2][i]},{input_shape[3][i]},{dtype[0][i]},{dtype[1][i]},{input_mem_config[0][i]},{input_mem_config[1][i]},{kernel_duration[i]}\n")
+
+print("big_exp_dataset.csv created")
