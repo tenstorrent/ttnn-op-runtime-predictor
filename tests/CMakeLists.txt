@@ -23,6 +23,7 @@ add_executable(
 target_link_libraries(test_interface PUBLIC
   GTest::gtest_main
   ${EXTERNAL_LIBRARIES}
+  ops_library
 )
 
 include(GoogleTest)

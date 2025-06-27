@@ -1,3 +1,5 @@
+#define MLPACK_ENABLE_ANN_SERIALIZATION
+
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -9,11 +11,11 @@
 
 #include <armadillo>
 
-namespace op_perf{
+namespace op_perf {
 
 std::optional<
     mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>>
 load_mlpack_model(const std::string &model_path, const int input_size,
                   const std::vector<int> &hidden_layers);
 
-}//namespace op_perf
+} // namespace op_perf
