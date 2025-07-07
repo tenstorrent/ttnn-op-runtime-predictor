@@ -269,18 +269,18 @@ INSTANTIATE_TEST_SUITE_P(
                         nlohmann::json())));
 
 // exp input parameter validation test cases
-class ExpValidInputTest
+class ExpInvalidInputTest
     : public testing::TestWithParam<
           std::tuple<std::string, nlohmann::json, nlohmann::json>> {};
 
-TEST_P(ExpValidInputTest, exp_input_valid) {
+TEST_P(ExpInvalidInputTest, exp_input_invalid) {
   auto [op_name, arg1, arg2] = GetParam();
   auto runtime = get_runtime_from_model(op_name, arg1, arg2);
   EXPECT_EQ(runtime, 0) << "runtime is " << runtime;
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    ExpInputValidation, ExpValidInputTest,
+    ExpInputValidation, ExpInvalidInputTest,
     testing::Values(
         // not exp
         std::make_tuple("wrong_op_name",

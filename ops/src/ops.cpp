@@ -13,13 +13,12 @@ load_mlpack_model(const std::string &model_path, int input_size,
   model.InputDimensions() =
       std::vector<size_t>({static_cast<unsigned long>(input_size)});
 
-  int num_hidden_layers = hidden_layers.size();
-  for (int i = 0; i < num_hidden_layers; i++) {
+  const int num_hidden_layers = hidden_layers.size();
+  for (int i = 0; i < num_hidden_layers; ++i) {
     model.Add<mlpack::Linear>(hidden_layers[i]);
     model.Add<mlpack::ReLU>();
   }
   model.Add<mlpack::Linear>(1);
-  model.Reset();
 
   // load model from path
   try {
@@ -34,8 +33,9 @@ load_mlpack_model(const std::string &model_path, int input_size,
 std::vector<int> get_tensor_dimensions(const nlohmann::json &tensor_dim_array) {
   std::vector<int> dim_vector = tensor_dim_array;
   const int length = dim_vector.size();
+  constexpr int max_rank = 4;
 
-  for (int i = length; i < 4 /*max tensor size*/; i++) {
+  for (int i = length; i < max_rank; ++i) {
     dim_vector.push_back(0);
   }
 
