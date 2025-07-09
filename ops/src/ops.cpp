@@ -1,7 +1,7 @@
 #include "ops/include/ops.hpp"
 #include "ops/include/model.hpp"
 
-namespace op_perf{
+namespace op_perf {
 
 std::optional<
     mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>>
@@ -13,8 +13,8 @@ load_mlpack_model(const std::string &model_path, int input_size,
   model.InputDimensions() =
       std::vector<size_t>({static_cast<unsigned long>(input_size)});
 
-  int num_hidden_layers = hidden_layers.size();
-  for (int i = 0; i < num_hidden_layers; i++) {
+  const int num_hidden_layers = hidden_layers.size();
+  for (int i = 0; i < num_hidden_layers; ++i) {
     model.Add<mlpack::Linear>(hidden_layers[i]);
     model.Add<mlpack::ReLU>();
   }
@@ -22,12 +22,24 @@ load_mlpack_model(const std::string &model_path, int input_size,
 
   // load model from path
   try {
-    mlpack::data::Load(model_path, "model", model);
+    mlpack::data::Load(model_path, "model", model, true);
   } catch (const std::exception &e) {
     return std::nullopt;
   }
 
   return model;
+}
+
+std::vector<int> get_tensor_dimensions(const nlohmann::json &tensor_dim_array) {
+  std::vector<int> dim_vector = tensor_dim_array;
+  const int length = dim_vector.size();
+  constexpr int max_rank = 4;
+
+  for (int i = length; i < max_rank; ++i) {
+    dim_vector.push_back(0);
+  }
+
+  return dim_vector;
 }
 
 std::vector<int> get_one_hot_dtype(const int &dtype) {
@@ -63,9 +75,10 @@ std::vector<int> get_memory_config(const int &memory_config) {
   // memory_config in order: DRAM, L1
   std::vector<int> mem_cfg_vector(2, 0);
 
-  if (memory_config == 0) {
+  if (memory_config == DRAM) {
     mem_cfg_vector[0] = 1;
   } else {
+    // L1
     mem_cfg_vector[1] = 1;
   }
 
@@ -74,29 +87,42 @@ std::vector<int> get_memory_config(const int &memory_config) {
 
 uint64_t predict_exp_runtime(const nlohmann::json &tensor_and_shape_jsons,
                              const nlohmann::json &optional_output_layout) {
+
+  if (tensor_and_shape_jsons.is_null() || tensor_and_shape_jsons.is_number()) {
+    return 0;
+  }
+
   // set exp model parameters and model path
   const int input_size = 11;
   const std::vector<int> hidden_layers = {128, 128, 128};
-  const std::string model_path =
-      "mlp_folder/exp_model.bin"; // placeholder filepath
+  const std::string model_path = std::string(MODEL_PATH) + "exp_mlp_model.bin";
+  const std::string scaler_path = std::string(MODEL_PATH) + "exp_scaler.bin";
 
   // load mlp
   auto model_optional =
-      op_perf::load_mlpack_model(model_path, input_size, hidden_layers);
+      load_mlpack_model(model_path, input_size, hidden_layers);
   if (!model_optional.has_value()) {
     return 0;
   }
   auto &model = *model_optional;
 
-  // get input, process it into arma::vec. This is likely to change when exp mlp
-  // is trained
+  mlpack::data::StandardScaler scaler;
+  try {
+    mlpack::data::Load(scaler_path, "scaler", scaler, true);
+  } catch (std::exception &e) {
+    return 0;
+  }
+
+  // get input, process it into arma::vec
 
   // specify dimension
-  auto tensor_dim_array = tensor_and_shape_jsons[1];
-  if (tensor_dim_array.size() > 4) {
+  if (tensor_and_shape_jsons[1].size() < 2 ||
+      tensor_and_shape_jsons[1].size() > 4) {
     // max allowed tensor dim is 4
     return 0;
   }
+  std::vector<int> tensor_dim_array =
+      get_tensor_dimensions(tensor_and_shape_jsons[1]);
 
   // specify datatype
   int ttnn_tensor_dtype =
@@ -108,9 +134,7 @@ uint64_t predict_exp_runtime(const nlohmann::json &tensor_and_shape_jsons,
                                       ["memory_config"]["buffer_type"];
   std::vector<int> memory_config = get_memory_config(mem_cfg);
 
-  // create input and output vectors. This is subject to change based on how
-  // categorical data is encoded in model current implementation is onehot
-  // encoding for datatype and memory_config
+  // create input and output vectors
   arma::vec input = {
 
       static_cast<double>(tensor_dim_array[0]),
@@ -123,13 +147,23 @@ uint64_t predict_exp_runtime(const nlohmann::json &tensor_and_shape_jsons,
       static_cast<double>(onehot_dtype[3]),
       static_cast<double>(onehot_dtype[4]),
       static_cast<double>(memory_config[0]),
-      static_cast<double>(memory_config[1])};
-  arma::vec output(1);
+      static_cast<double>(memory_config[1])
+
+  };
+
+  arma::vec scaler_scaled;
+  scaler.Transform(input, scaler_scaled);
 
   // model inference
-  model.Predict(input, output);
+  arma::mat scaler_output;
+  model.Predict(scaler_scaled, scaler_output);
 
-  return output(0);
+  // some small tensors have small runtime, and the runtime inference may be
+  // negative. In this case, return 0.
+  if (scaler_output(0, 0) < 0) {
+    return 0;
+  }
+  return static_cast<uint64_t>(scaler_output(0, 0));
 }
 
-}//namespace op_perf
+} // namespace op_perf
