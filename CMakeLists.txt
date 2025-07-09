@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.30)
 project(OpModeling LANGUAGES CXX)
 
-SET(ROOTDIR "${CMAKE_SOURCE_DIR}")
-INCLUDE_DIRECTORIES("${ROOTDIR}")
-
-add_definitions(-DMODEL_PATH="${CMAKE_SOURCE_DIR}/train/mlpack/")
+if(DEFINED BUILD_MLP_OP_PERF)
+   	SET(MLP_OP_PERF_ROOTDIR "${PROJECT_SOURCE_DIR}")
+else()
+    SET(MLP_OP_PERF_ROOTDIR "${CMAKE_SOURCE_DIR}")
+endif()
+INCLUDE_DIRECTORIES("${MLP_OP_PERF_ROOTDIR}")
 
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
