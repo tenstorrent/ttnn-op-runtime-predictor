@@ -17,7 +17,7 @@ if(DEFINED BUILD_MLP_OP_PERF)
 
   target_link_libraries(test_interface PUBLIC
     GTest::gtest_main
-    mlpack
+    mlpack::mlpack
     Armadillo
     nlohmann_json::nlohmann_json
     LAPACK

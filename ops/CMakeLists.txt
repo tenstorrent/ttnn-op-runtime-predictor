@@ -14,7 +14,7 @@ if(DEFINED BUILD_MLP_OP_PERF)
 
     target_link_libraries(ops_library
         PUBLIC
-            mlpack
+            mlpack::mlpack
             Armadillo
             nlohmann_json::nlohmann_json
             LAPACK
