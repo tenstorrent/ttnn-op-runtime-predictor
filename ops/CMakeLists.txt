@@ -1,5 +1,9 @@
 add_library(ops_library)
 
+message("directories: ${nlohmann_INCLUDE_DIRS}")
+message("directories: ${Armadillo_INCLUDE_DIRS}")
+
+
 set(EXTERNAL_INCLUDE_DIRS
     ${nlohmann_INCLUDE_DIRS}
     ${Armadillo_INCLUDE_DIRS}
