@@ -24,3 +24,7 @@ include(CTest)
 
 add_subdirectory(ops)
 add_subdirectory(tests)
+
+add_dependencies(ops_library mlpack)
+
+add_dependencies(test_interface mlpack)
