@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.30)
 project(OpModeling LANGUAGES CXX)
 
+add_subdirectory(third_party)
+
+include_directories("${CMAKE_BINARY_DIR}/include")
+
 SET(ROOTDIR "${CMAKE_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${ROOTDIR}")
 
@@ -8,7 +12,6 @@ add_definitions(-DMODEL_PATH="${CMAKE_SOURCE_DIR}/train/mlpack/")
 
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
-find_package(mlpack REQUIRED)
 find_package(Armadillo REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
