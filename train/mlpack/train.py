@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: (c) 2025 Tenstorrent Inc.
+
+# SPDX-License-Identifier: Apache-2.0
+
 import csv
 from sklearn.neural_network import MLPRegressor
 from sklearn.model_selection import train_test_split
