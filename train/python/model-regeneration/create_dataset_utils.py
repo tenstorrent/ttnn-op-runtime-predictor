@@ -11,7 +11,7 @@ def parse_ints_from_string(text):
             result.append(int(number))
     return result
 
-def load_json(sweep_results="placeholder", sweep_test_vectors="placeholder"):
+def load_json(sweep_results, sweep_test_vectors):
 
     with open(sweep_results) as results_file, open(sweep_test_vectors) as test_vectors_file:
 
