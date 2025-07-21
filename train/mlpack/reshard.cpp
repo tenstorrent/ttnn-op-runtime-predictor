@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: (c) 2025 Tenstorrent Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ann.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
