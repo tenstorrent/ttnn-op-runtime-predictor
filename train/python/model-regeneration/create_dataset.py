@@ -1,28 +1,23 @@
 import argparse
 from create_dataset_eltwise_unary import create_dataset_eltwise_unary
 
-def determine_op_category(op_name):
-    #add op names here as needed
-    op_category = ""
-    if op_name == "exp":
-        op_category = "eltwise_unary"
-    elif op_name == "add":
-        op_category = "eltwise_binary"
-    else:
-        op_category = "None"
-    
-    return op_category
+#Global dictionary of op_name : op_category. Add here as needed.
+OP_CATEGORIES = {
+    "exp": "eltwise_unary",
+    "add": "eltwise_binary"
+}
 
 def main(op_name, op_category, sweep_vectors, sweep_results):
-
-    #add op categories here as needed
     if op_category is None:
-        op_category = determine_op_category(op_name)
+        if op_name not in OP_CATEGORIES:
+            raise ValueError(f"Op '{op_name}' has no op category.")
+        op_category = OP_CATEGORIES[op_name]
     
+    #Add op categories here as needed
     if op_category == "eltwise_unary":
         create_dataset_eltwise_unary(op_name, sweep_vectors, sweep_results)
     else:
-        print(f"op category {op_category} not yet supported.")
+        raise ValueError(f"Unsupported op category: {op_category}")
         
 
 if __name__ == "__main__":
