@@ -1,19 +1,19 @@
 import json
 
+MAX_TENSOR_RANK = 4
+NUM_SUPPORTED_DTYPES = 5
+NUM_BUFFER_TYPES = 2
+
 def parse_ints_from_string(text):
     text = text.strip("[]")
     numbers = text.split(",")
 
-    result = []
-    for number in numbers:
-        number = number.strip()
-        if number:
-            result.append(int(number))
-    return result
+    numbers = [n.strip() for n in numbers]
+    return [int(n) for n in numbers if n]
 
-def load_json(sweep_results, sweep_test_vectors):
+def load_json(sweep_test_vectors, sweep_results):
 
-    with open(sweep_results) as results_file, open(sweep_test_vectors) as test_vectors_file:
+    with open(sweep_results, 'r') as results_file, open(sweep_test_vectors, 'r') as test_vectors_file:
 
         results = json.load(results_file)
         test_vectors = json.load(test_vectors_file)
