@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "ops/include/ops.hpp"
-#include "ops/include/model.hpp"
+#include "ops.hpp"
+#include "model.hpp"
 
 namespace op_perf {
 

@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "ops/include/ops.hpp"
+#include "../ops/include/ops.hpp"
 
 namespace op_perf {
 
@@ -24,4 +24,4 @@ uint64_t get_runtime_from_model(const std::string &op_name, Args &&...args) {
   }
 }
 
-} //namespace op_perf
+} // namespace op_perf
