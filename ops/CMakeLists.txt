@@ -12,7 +12,10 @@ set(EXTERNAL_LIBRARIES
     ${LAPACK_LIBRARIES}
 )
 
-target_include_directories(ops_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${EXTERNAL_INCLUDE_DIRS})
+target_include_directories(ops_library PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${mlpack_SOURCE_DIR}/src
+)
 
 file(GLOB_RECURSE OPS_SRC src/*.cpp)
 target_sources(ops_library PRIVATE ${OPS_SRC})
