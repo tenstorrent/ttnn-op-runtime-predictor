@@ -9,7 +9,6 @@ add_definitions(-DMLP_CONFIG_PATH="${CMAKE_SOURCE_DIR}/train/mlpack/model-regene
 
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
-find_package(mlpack REQUIRED)
 find_package(Armadillo REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
@@ -19,6 +18,18 @@ find_package(LAPACK REQUIRED)
 add_definitions(-DARMA_DONT_USE_WRAPPER)
 
 include(CTest)
+
+list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(CPM)
+
+CPMAddPackage(
+  NAME mlpack
+  GITHUB_REPOSITORY mlpack/mlpack
+  GIT_TAG 8fc23ba711075402c9cd77cfa0938a9d33256ca2
+  OPTIONS
+    "BUILD_GO_SHLIB OFF"
+    "BUILD_CLI_EXECUTABLES OFF"
+)
 
 add_subdirectory(ops)
 add_subdirectory(tests)
