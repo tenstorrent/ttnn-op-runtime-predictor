@@ -10,7 +10,6 @@ add_definitions(-DMLP_CONFIG_PATH="${CMAKE_SOURCE_DIR}/train/mlpack/model-regene
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
 find_package(Armadillo REQUIRED)
-find_package(nlohmann_json REQUIRED)
 
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
@@ -21,6 +20,16 @@ include(CTest)
 
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(CPM)
+
+CPMAddPackage(
+    NAME nlohmann_json
+    GITHUB_REPOSITORY nlohmann/json
+    GIT_TAG v3.11.3
+    OPTIONS
+    "CMAKE_MESSAGE_LOG_LEVEL NOTICE"
+    "JSON_Install ON"
+    "JSON_BuildTests OFF"
+)
 
 CPMAddPackage(
   NAME mlpack
