@@ -4,7 +4,7 @@ project(OpModeling LANGUAGES CXX)
 SET(ROOTDIR "${CMAKE_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${ROOTDIR}")
 
-add_definitions(-DMODEL_PATH="${CMAKE_SOURCE_DIR}/train/mlpack/")
+add_definitions(-DMODEL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/train/mlpack/")
 
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
