@@ -20,3 +20,6 @@ target_sources(model_regen_library PRIVATE ${MODEL_REGEN_SRC})
 target_link_libraries(model_regen_library PUBLIC
     ${EXTERNAL_LIBRARIES}
 )
+
+add_executable(retrain_mlp retrain_mlp.cpp)
+target_link_libraries(retrain_mlp model_regen_library)

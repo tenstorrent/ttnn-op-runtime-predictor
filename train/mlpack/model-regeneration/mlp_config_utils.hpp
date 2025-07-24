@@ -35,6 +35,8 @@ nlohmann::json load_mlp_config(const std::string& model_name, const std::string&
     infile >> config;
     infile.close();
     if (config.contains("models") && config["models"].contains(model_name)) {
+        //print full json object
+        std::cout << "Loaded config for model '" << model_name << "':\n" << config["models"][model_name].dump(4) << std::endl;
         return config["models"][model_name];
     } else {
         throw std::runtime_error("Error: model '" + model_name + "' not found in config file: " + config_path);
