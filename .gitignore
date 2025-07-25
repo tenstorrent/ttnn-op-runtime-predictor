@@ -3,3 +3,4 @@
 .DS_STORE
 .vscode/*
 .cache
+.cpmcache
