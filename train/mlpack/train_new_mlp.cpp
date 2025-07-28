@@ -27,15 +27,14 @@ initialize_model_architecture(int input_dim, const std::vector<int>& hidden_laye
     mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization> model;
     model.InputDimensions() = std::vector<size_t>({static_cast<unsigned long>(input_dim)});
     for (int i = 0; i < hidden_layers.size(); ++i) {
-        model.Add<mlpack::Linear>(i);
+        model.Add<mlpack::Linear>(hidden_layers[i]);
         model.Add<mlpack::ReLU>();
     }
     model.Add<mlpack::Linear>(1);
     return model;
 }
 
-double R2Score(const arma::rowvec& actual, const arma::rowvec& predicted)
-{
+double R2Score(const arma::rowvec& actual, const arma::rowvec& predicted){
     double ssRes = arma::accu(arma::square(actual - predicted));
     double ssTot = arma::accu(arma::square(actual - arma::mean(actual)));
     return 1 - (ssRes / ssTot);
@@ -91,6 +90,14 @@ void evaluate_mlp(mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitializa
     model.Predict(X, pred);
     double r2 = R2Score(Y.row(0), pred.row(0));
     std::cout << label << " R² Score: " << r2 << std::endl;
+}
+
+double return_r2(mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>& model, const arma::mat& X, const arma::mat& Y, const std::string& label){
+    arma::mat pred;
+    model.Predict(X, pred);
+    double r2 = R2Score(Y.row(0), pred.row(0));
+    std::cout << label << " R² Score: " << r2 << std::endl;
+    return r2;
 }
 
 void save_model_and_scaler(const std::string& op_name, const mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>& model, const mlpack::data::StandardScaler& scaler){
@@ -200,17 +207,17 @@ nlohmann::json create_model_param_json(const std::string& op_name, const std::ve
     return model_json;
 }
 
-auto train_new_mlp(const std::string& op_name, const std::string& op_category, const arma::mat& trainX, const arma::mat& trainY, const int& input_dim, const std::optional<std::vector<int>>& hidden_layers, const std::optional<int>& batch_size, const std::optional<double>& learning_rate, const std::optional<double>& momentum_decay, const std::optional<double>& squared_gradient_decay, const std::optional<double>& epsilon, const std::optional<int>& max_iterations, const std::optional<double>& tolerance){
+auto train_new_mlp(const std::string& op_name, const std::string& op_category, const arma::mat& trainX, const arma::mat& trainY, const arma::mat& validX, const arma::mat& validY, const int& input_dim, const std::optional<std::vector<int>>& hidden_layers_opt, const std::optional<int>& batch_size_opt, const std::optional<double>& learning_rate_opt, const std::optional<double>& momentum_decay_opt, const std::optional<double>& squared_gradient_decay_opt, const std::optional<double>& epsilon_opt, const std::optional<int>& max_iterations_opt, const std::optional<double>& tolerance_opt){
 
-    const std::vector<std::vector<int>> hidden_layers_space = hidden_layers ? std::vector<std::vector<int>>{*hidden_layers} : std::vector<std::vector<int>>{{128,128,128}, {256,128,128}, {128,256,128}};
-    const std::vector<int> batch_size_space = batch_size ? std::vector<int>{*batch_size} : std::vector<int>{32, 64, 128};
-    const std::vector<double> learning_rate_space = learning_rate ? std::vector<double>{*learning_rate} : std::vector<double>{0.01, 0.001, 0.0005};
+    const std::vector<std::vector<int>> hidden_layers_space = hidden_layers_opt ? std::vector<std::vector<int>>{*hidden_layers_opt} : std::vector<std::vector<int>>{{128,128,128}, {256,128,128}, {128,256,128}};
+    const std::vector<int> batch_size_space = batch_size_opt ? std::vector<int>{*batch_size_opt} : std::vector<int>{32, 64, 128};
+    const std::vector<double> learning_rate_space = learning_rate_opt ? std::vector<double>{*learning_rate_opt} : std::vector<double>{0.01, 0.001, 0.0005};
 
-    const double momentum_decay_val = momentum_decay.has_value() ? momentum_decay.value() : DEFAULT_MOMENTUM_DECAY;
-    const double squared_gradient_decay_val = squared_gradient_decay.has_value() ? squared_gradient_decay.value() : DEFAULT_SQUARED_GRADIENT_DECAY;
-    const double epsilon_val = epsilon.has_value() ? epsilon.value() : DEFAULT_EPSILON;
-    const int max_iterations_val = max_iterations.has_value() ? max_iterations.value() : DEFAULT_MAX_ITERATIONS;
-    const double tolerance_val = tolerance.has_value() ? tolerance.value() : DEFAULT_TOLERANCE;
+    const double momentum_decay_val = momentum_decay_opt.has_value() ? momentum_decay_opt.value() : DEFAULT_MOMENTUM_DECAY;
+    const double squared_gradient_decay_val = squared_gradient_decay_opt.has_value() ? squared_gradient_decay_opt.value() : DEFAULT_SQUARED_GRADIENT_DECAY;
+    const double epsilon_val = epsilon_opt.has_value() ? epsilon_opt.value() : DEFAULT_EPSILON;
+    const int max_iterations_val = max_iterations_opt.has_value() ? max_iterations_opt.value() : DEFAULT_MAX_ITERATIONS;
+    const double tolerance_val = tolerance_opt.has_value() ? tolerance_opt.value() : DEFAULT_TOLERANCE;
 
     std::vector<double> r2_scores;
     std::vector<mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>> models;
@@ -238,7 +245,7 @@ auto train_new_mlp(const std::string& op_name, const std::string& op_category, c
                 std::cout << "Training completed in " << total_time / 1000.0 << " seconds.\n";
 
                 evaluate_mlp(model, trainX, trainY, "Training");
-                evaluate_mlp(model, validX, validY, "Validation");
+                double valid_r2 = return_r2(model, validX, validY, "Validation");
 
                 valid_r2_scores.push_back(valid_r2);
                 models.push_back(model);
