@@ -13,6 +13,13 @@
 #include <nlohmann/json.hpp>
 
 #define MIN_NUM_ARGS 9
+#define DEFAULT_MOMENTUM_DECAY 0.9
+#define DEFAULT_SQUARED_GRADIENT_DECAY 0.999
+#define DEFAULT_EPSILON 1e-8
+#define DEFAULT_MAX_ITERATIONS 10000000
+#define DEFAULT_TOLERANCE 1e-5
+
+//todo: create helper file to contain common helper funcs across 
 
 mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>
 initialize_model_architecture(int input_dim, const std::vector<int>& hidden_layers) {
@@ -93,6 +100,7 @@ void save_model_and_scaler(const std::string& op_name, const mlpack::FFN<mlpack:
     std::cout << "Model saved as " << mlp_filename << std::endl;
 }
 
+//todo
 std::vector<int> parse_ints(char* arg){
 
 }
@@ -162,27 +170,51 @@ auto parse_args(int argc, char** argv){
     return std::make_tuple(op_name, op_category, dataset, input_dim, hidden_layers, batch_size, learning_rate, momentum_decay, squared_gradient_decay, epsilon, max_iterations, tolerance);
 }
 
+nlohmann::json create_model_param_json(const std::string& op_name, const std::vector<int>& hidden_layers, const int& input_dim, const int& batch_size, const double& learning_rate, const double& momentum_decay, const double& squared_gradient_decay, const double& epsilon, const int& max_iterations, const double& tolerance) {
+    nlohmann::json model_json;
+    model_json["name"] = op_name;
+    model_json["architecture_config"] = {
+        {"hidden_layers", hidden_layers},
+        {"input_size", input_dim}
+    };
+    model_json["optimizer_config"] = {
+        {"batch_size", batch_size},
+        {"learning_rate", learning_rate},
+        {"momentum_decay", momentum_decay},
+        {"squared_gradient_decay", squared_gradient_decay},
+        {"epsilon", epsilon},
+        {"max_iterations", max_iterations},
+        {"tolerance", tolerance}
+    };
+    return model_json;
+}
+
 auto train_new_mlp(const std::string& op_name, const std::string& op_category, const arma::mat& trainX, const arma::mat& trainY, const int& input_dim, const std::optional<std::vector<int>>& hidden_layers, const std::optional<int>& batch_size, const std::optional<double>& learning_rate, const std::optional<double>& momentum_decay, const std::optional<double>& squared_gradient_decay, const std::optional<double>& epsilon, const std::optional<int>& max_iterations, const std::optional<double>& tolerance){
 
     const std::vector<std::vector<int>> hidden_layers_space = hidden_layers ? std::vector<std::vector<int>>{*hidden_layers} : std::vector<std::vector<int>>{{128,128,128}, {256,128,128}, {128,256,128}};
     const std::vector<int> batch_size_space = batch_size ? std::vector<int>{*batch_size} : std::vector<int>{32, 64, 128};
     const std::vector<double> learning_rate_space = learning_rate ? std::vector<double>{*learning_rate} : std::vector<double>{0.01, 0.001, 0.0005};
 
-    const double momentum_decay_val = momentum_decay.has_value() ? momentum_decay.value() : 0.9;
-    const double squared_gradient_decay_val = squared_gradient_decay.has_value() ? squared_gradient_decay.value() : 0.999;
-    const double epsilon_val = epsilon.has_value() ? epsilon.value() : 1e-8;
-    const int max_iterations_val = max_iterations.has_value() ? max_iterations.value() : 10000000;
-    const double tolerance_val = tolerance.has_value() ? tolerance.value() : 1e-5;
+    const double momentum_decay_val = momentum_decay.has_value() ? momentum_decay.value() : DEFAULT_MOMENTUM_DECAY;
+    const double squared_gradient_decay_val = squared_gradient_decay.has_value() ? squared_gradient_decay.value() : DEFAULT_SQUARED_GRADIENT_DECAY;
+    const double epsilon_val = epsilon.has_value() ? epsilon.value() : DEFAULT_EPSILON;
+    const int max_iterations_val = max_iterations.has_value() ? max_iterations.value() : DEFAULT_MAX_ITERATIONS;
+    const double tolerance_val = tolerance.has_value() ? tolerance.value() : DEFAULT_TOLERANCE;
 
     std::vector<double> r2_scores;
     std::vector<mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>> models;
     double best_valid_r2 = -1;
     mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization> best_model;
+    std::vector<nlohmann::json> model_params;
+    nlohmann::json best_model_params;
 
     for(const std::vector<int> hidden_layers : hidden_layers_space){
         for(const int batch_size : batch_size_space){
             for(const double learning_rate : learning_rate_space){
-                //todo: print curr args
+
+                nlohmann::json model_json = create_model_param_json(op_name, hidden_layers, input_dim, batch_size, learning_rate, momentum_decay_val, squared_gradient_decay_val, epsilon_val, max_iterations_val, tolerance_val);
+                std::cout << "Training MLP with parameters: " << std::endl;
+                std::cout << model_json.dump(4) << std::endl;
 
                 auto model = initialize_model_architecture(input_dim, hidden_layers);
                 mlpack::ens::Adam optimizer(learning_rate, batch_size, momentum_decay, squared_gradient_decay, epsilon, max_iterations, tolerance, true);
@@ -199,15 +231,17 @@ auto train_new_mlp(const std::string& op_name, const std::string& op_category, c
 
                 valid_r2_scores.push_back(valid_r2);
                 models.push_back(model);
+                model_params.push_back(model_json);
 
                 if (valid_r2 > best_valid_r2) {
                     best_valid_r2 = valid_r2;
                     best_model = model;
+                    best_model_params = model_json;
                 }
             }
         }
     }
-    return best_model;
+    return std::make_tuple(best_model, best_valid_r2, best_model_params);
 }
 
 int main(int argc, char** argv){
@@ -216,8 +250,10 @@ int main(int argc, char** argv){
 
         auto [trainX, trainY, validX, validY, scaler] = load_and_split_data(dataset_filepath);
 
-        auto model = train_new_mlp(op_name, op_category, trainX, trainY, input_dim, hidden_layers, batch_size, learning_rate, momentum_decay, squared_gradient_decay, epsilon, max_iterations, tolerance);
+        auto [model, r2, params] = train_new_mlp(op_name, op_category, trainX, trainY, input_dim, hidden_layers, batch_size, learning_rate, momentum_decay, squared_gradient_decay, epsilon, max_iterations, tolerance);
 
+        const std::string& config_filepath = "mlp_config.json";
+        save_mlp_config(params, op_name, config_filepath);
         save_model_and_scaler(op_name, model, scaler);
     }catch(const std::exception& e){
         std::cerr << "Error: " << e.what() << std::endl;
