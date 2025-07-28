@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <optional>
+#include <sstream>
 
 #define MLPACK_ENABLE_ANN_SERIALIZATION
 #include <mlpack.hpp>
@@ -103,6 +104,16 @@ void save_model_and_scaler(const std::string& op_name, const mlpack::FFN<mlpack:
 //todo
 std::vector<int> parse_ints(char* arg){
 
+    if (arg == nullptr) {
+        throw std::invalid_argument("Argument is null.");
+    }
+    std::vector<int> ints;
+    std::istringstream ss(arg);
+    std::string substring;
+    while (std::getline(ss, substring, ',')) {
+        ints.push_back(std::stoi(substring));
+    }
+    return ints;
 }
 
 auto parse_args(int argc, char** argv){
@@ -259,4 +270,5 @@ int main(int argc, char** argv){
         std::cerr << "Error: " << e.what() << std::endl;
         return -1;
     }
+    return 0;
 }
