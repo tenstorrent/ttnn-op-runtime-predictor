@@ -21,3 +21,4 @@ include(CTest)
 
 add_subdirectory(ops)
 add_subdirectory(tests)
+add_subdirectory(train/mlpack/model-regeneration)
