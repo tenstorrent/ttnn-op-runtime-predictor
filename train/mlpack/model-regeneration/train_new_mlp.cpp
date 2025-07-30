@@ -13,112 +13,16 @@
 
 #include <nlohmann/json.hpp>
 
+#include "mlp_config_utils.hpp"
+#include "train_mlp_utils.hpp"
+
 #define MIN_NUM_ARGS 9
 #define DEFAULT_MOMENTUM_DECAY 0.9
 #define DEFAULT_SQUARED_GRADIENT_DECAY 0.999
 #define DEFAULT_EPSILON 1e-8
-#define DEFAULT_MAX_ITERATIONS 10000000
+#define DEFAULT_MAX_ITERATIONS 500000
 #define DEFAULT_TOLERANCE 1e-5
 
-// todo: create helper file to contain common helper funcs across
-
-mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>
-initialize_model_architecture(int input_dim,
-                              const std::vector<int> &hidden_layers) {
-  mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization> model;
-  model.InputDimensions() =
-      std::vector<size_t>({static_cast<unsigned long>(input_dim)});
-  for (int i = 0; i < hidden_layers.size(); ++i) {
-    model.Add<mlpack::Linear>(hidden_layers[i]);
-    model.Add<mlpack::ReLU>();
-  }
-  model.Add<mlpack::Linear>(1);
-  return model;
-}
-
-double R2Score(const arma::rowvec &actual, const arma::rowvec &predicted) {
-  double ssRes = arma::accu(arma::square(actual - predicted));
-  double ssTot = arma::accu(arma::square(actual - arma::mean(actual)));
-  return 1 - (ssRes / ssTot);
-}
-
-auto load_and_split_data(const std::string &dataset_filepath,
-                         const double valid_ratio = 0.2) {
-  arma::mat trainX, validX, trainY, validY;
-  mlpack::data::StandardScaler scaler;
-
-  arma::mat dataset;
-  if (!mlpack::data::Load(dataset_filepath, dataset, true)) {
-    throw std::runtime_error("Error loading dataset csv!");
-  }
-  arma::mat features = dataset.rows(0, dataset.n_rows - 2);
-  arma::mat labels = dataset.row(dataset.n_rows - 1);
-
-  // print dataset size
-  std::cout << "Dataset " << dataset_filepath << "loaded. Contains "
-            << dataset.n_rows << " rows and " << dataset.n_cols << " columns."
-            << std::endl;
-
-  arma::mat scaled_features;
-  scaler.Fit(features);
-  scaler.Transform(features, scaled_features);
-
-  arma::uvec indices = arma::randperm(scaled_features.n_cols);
-  size_t valid_count = scaled_features.n_cols * valid_ratio;
-
-  arma::uvec valid_indices = indices.head(valid_count);
-  arma::uvec train_indices = indices.tail(scaled_features.n_cols - valid_count);
-
-  trainX = scaled_features.cols(train_indices);
-  trainY = labels.cols(train_indices);
-  validX = scaled_features.cols(valid_indices);
-  validY = labels.cols(valid_indices);
-
-  return std::make_tuple(trainX, trainY, validX, validY, scaler);
-}
-
-ens::Adam create_optimizer(const nlohmann::json &optimizer_config) {
-  return ens::Adam(
-      optimizer_config["learning_rate"], optimizer_config["batch_size"],
-      optimizer_config["momentum_decay"],
-      optimizer_config["squared_gradient_decay"], optimizer_config["epsilon"],
-      optimizer_config["max_iterations"], optimizer_config["tolerance"],
-      true // shuffle data every epoch
-  );
-}
-
-void evaluate_mlp(
-    mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization> &model,
-    const arma::mat &X, const arma::mat &Y, const std::string &label) {
-  arma::mat pred;
-  model.Predict(X, pred);
-  double r2 = R2Score(Y.row(0), pred.row(0));
-  std::cout << label << " R² Score: " << r2 << std::endl;
-}
-
-double return_r2(
-    mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization> &model,
-    const arma::mat &X, const arma::mat &Y, const std::string &label) {
-  arma::mat pred;
-  model.Predict(X, pred);
-  double r2 = R2Score(Y.row(0), pred.row(0));
-  std::cout << label << " R² Score: " << r2 << std::endl;
-  return r2;
-}
-
-void save_model_and_scaler(
-    const std::string &op_name,
-    const mlpack::FFN<mlpack::MeanSquaredError, mlpack::RandomInitialization>
-        &model,
-    const mlpack::data::StandardScaler &scaler) {
-  std::string suffix = "_model.bin";
-  std::string mlp_filename = op_name + suffix;
-  mlpack::data::Save(mlp_filename, "model", model, true);
-  mlpack::data::Save("exp_scaler.bin", "scaler", scaler, true);
-  std::cout << "Model saved as " << mlp_filename << std::endl;
-}
-
-// todo
 std::vector<int> parse_ints(char *arg) {
 
   if (arg == nullptr) {
@@ -139,7 +43,7 @@ auto parse_args(int argc, char **argv) {
   std::string op_name, op_category, dataset;
   int input_dim;
   if (argc < MIN_NUM_ARGS) {
-    throw std::invalid_argument("Not enough args.")
+    throw std::invalid_argument("Not enough args.");
   }
   if (strcmp(argv[1], "--op-name") != 0) {
     throw std::invalid_argument(
@@ -288,22 +192,22 @@ auto train_new_mlp(const std::string &op_name, const std::string &op_category,
         std::cout << model_json.dump(4) << std::endl;
 
         auto model = initialize_model_architecture(input_dim, hidden_layers);
-        mlpack::ens::Adam optimizer(learning_rate, batch_size, momentum_decay,
-                                    squared_gradient_decay, epsilon,
-                                    max_iterations, tolerance, true);
+        ens::Adam optimizer(learning_rate, batch_size, momentum_decay_val,
+                                    squared_gradient_decay_val, epsilon_val,
+                                    max_iterations_val, tolerance_val, true);
 
         auto start = std::chrono::high_resolution_clock::now();
         model.Train(trainX, trainY, optimizer);
         auto end = std::chrono::high_resolution_clock::now();
 
-        double total_time = duration_cast<milliseconds>(end - start).count();
+        double total_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         std::cout << "Training completed in " << total_time / 1000.0
                   << " seconds.\n";
 
         evaluate_mlp(model, trainX, trainY, "Training");
         double valid_r2 = return_r2(model, validX, validY, "Validation");
 
-        valid_r2_scores.push_back(valid_r2);
+        r2_scores.push_back(valid_r2);
         models.push_back(model);
         model_params.push_back(model_json);
 
@@ -328,11 +232,15 @@ int main(int argc, char **argv) {
         load_and_split_data(dataset_filepath);
 
     auto [model, r2, params] = train_new_mlp(
-        op_name, op_category, trainX, trainY, input_dim, hidden_layers,
+        op_name, op_category, trainX, trainY, validX, validY, input_dim, hidden_layers,
         batch_size, learning_rate, momentum_decay, squared_gradient_decay,
         epsilon, max_iterations, tolerance);
 
-    const std::string &config_filepath = "mlp_config.json";
+    std::cout << "The best model has parameters: " << std::endl;
+    std::cout << params.dump(4) << std::endl;
+    std::cout << "with validation R2 score: " << r2 << std::endl;
+
+    const std::string &config_filepath = std::string(MLP_CONFIG_PATH) + "mlp_config.json";
     save_mlp_config(params, op_name, config_filepath);
     save_model_and_scaler(op_name, model, scaler);
   } catch (const std::exception &e) {

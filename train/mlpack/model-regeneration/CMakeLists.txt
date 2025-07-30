@@ -23,3 +23,6 @@ target_link_libraries(model_regen_library PUBLIC
 
 add_executable(retrain_mlp retrain_mlp.cpp)
 target_link_libraries(retrain_mlp model_regen_library)
+
+add_executable(train_new_mlp train_new_mlp.cpp)
+target_link_libraries(train_new_mlp model_regen_library)
