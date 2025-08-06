@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.30)
 project(OpModeling LANGUAGES CXX)
 
-SET(ROOTDIR "${CMAKE_SOURCE_DIR}")
+SET(ROOTDIR "${CMAKE_CURRENT_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${ROOTDIR}")
 
-add_definitions(-DMODEL_PATH="${CMAKE_SOURCE_DIR}/train/mlpack/")
-add_definitions(-DMLP_CONFIG_PATH="${CMAKE_SOURCE_DIR}/train/mlpack/model-regeneration/")
+add_definitions(-DMODEL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/train/mlpack/")
+add_definitions(-DMLP_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/train/mlpack/model-regeneration/")
 
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
