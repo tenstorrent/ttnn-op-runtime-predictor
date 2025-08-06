@@ -120,21 +120,21 @@ uint64_t predict_exp_runtime(const nlohmann::json &tensor_json,
   // get input, process it into arma::vec
 
   // specify dimension
-  if (tensor_json["logical_shape"].size() < 2 ||
-      tensor_json["logical_shape"].size() > 4) {
+  if (tensor_json["tensor_spec"]["logical_shape"].size() < 2 ||
+      tensor_json["tensor_spec"]["logical_shape"].size() > 4) {
     // max allowed tensor dim is 4
     return 0;
   }
   std::vector<int> tensor_dim_array =
-      get_tensor_dimensions(tensor_json["logical_shape"]);
+      get_tensor_dimensions(tensor_json["tensor_spec"]["logical_shape"]);
 
   // specify datatype
   int ttnn_tensor_dtype =
-      tensor_json["tensor_layout"]["dtype"];
+      tensor_json["tensor_spec"]["tensor_layout"]["dtype"];
   std::vector<int> onehot_dtype = get_one_hot_dtype(ttnn_tensor_dtype);
 
   // specify memory_config
-  int mem_cfg = tensor_json["tensor_layout"]["memory_config"]["buffer_type"];
+  int mem_cfg = tensor_json["tensor_spec"]["tensor_layout"]["memory_config"]["buffer_type"];
   std::vector<int> memory_config = get_memory_config(mem_cfg);
 
   // create input and output vectors

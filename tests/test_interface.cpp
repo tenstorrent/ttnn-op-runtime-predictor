@@ -15,38 +15,54 @@ using namespace op_perf;
 nlohmann::json create_serialized_tensor(const std::vector<int> &dimensions,
                                         const int &dtype,
                                         const int &buffer_type) {
-  nlohmann::json tensor_json = {
-      {"logical_shape", dimensions},
-      {"tensor_layout",
-       {
-           {"alignment", {{"value", {1, 1, 32, 32}}}},
-           {"dtype", dtype},
-           {"memory_config",
+    nlohmann::json tensor_json = {
+        {"tensor_spec",
             {
-                {"buffer_type", buffer_type},
-                {"created_with_nd_shard_spec", false},
-                {"memory_layout", 0}
-            }},
-           {"page_config",
+                {"logical_shape", dimensions},
+                {"tensor_layout",
+                    {
+                        {"alignment", {{"value", {1, 1, 32, 32}}}},
+                        {"dtype", dtype},
+                        {"memory_config",
+                            {
+                                {"buffer_type", buffer_type},
+                                {"created_with_nd_shard_spec", false},
+                                {"memory_layout", 0}
+                            }
+                        },
+                        {"page_config",
+                            {
+                                {"config",
+                                    {
+                                        {"index", 1},
+                                        {"value",
+                                            {
+                                                {"tile",
+                                                    {
+                                                        {"face_shape", {16, 16}},
+                                                        {"num_faces", 4},
+                                                        {"tile_shape", {32, 32}}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {"storage",
             {
-                {"config",
-                 {
-                     {"index", 1},
-                     {"value",
-                      {
-                          {"tile",
-                           {
-                               {"face_shape", {16, 16}},
-                               {"num_faces", 4},
-                               {"tile_shape", {32, 32}}
-                           }}
-                      }}
-                 }}
-            }}
-       }}
-  };
+                {"index", 1},
+                {"value", nlohmann::json::object()}
+            }
+        }
+    };
 
-  return tensor_json;
+    return tensor_json;
 }
 
 // exp success test cases (runtime estimate is returned, estimate is > 0)
