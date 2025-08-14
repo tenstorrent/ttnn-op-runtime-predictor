@@ -1,27 +1,74 @@
 #! /bin/bash
 set -e
 
-#find parent repo root, as this repo is included as cpm package in tt-metal
-PARENT_REPO_ROOT=$(git rev-parse --show-toplevel)
+get_parent_repo_root() {
+    git rev-parse --show-toplevel
+}
 
-#if parent repo root is not called tt-metal, exit
-if [[ "$(basename "$PARENT_REPO_ROOT")" != "tt-metal" ]]; then
-    echo "This script is intended to be run from the tt-metal repository."
-    exit 1
-fi
+check_repo_root() {
+    local repo_root="$1"
+    if [[ "$(basename "$repo_root")" != "tt-metal" ]]; then
+        echo "This script is intended to be run from the tt-metal repository."
+        exit 1
+    fi
+}
 
-#create directory for created json files if not already existing
-TARGET_DIR="$PARENT_REPO_ROOT/mlp-op-perf_tracking_details"
-mkdir -p "$TARGET_DIR"
+get_timestamp() {
+    date +"%Y%m%d_%H%M%S_%Z"
+}
 
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-JSON_FILE="$TARGET_DIR/tt-metal_tracking_info_$TIMESTAMP.json"
+get_tt_smi_info() {
+    eval "$(tt-smi -s | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+host = data.get('host_info', {}).get('Hostname', '')
+driver = data.get('host_info', {}).get('Driver', '')
+print(f'HOSTNAME=\"{host}\"')
+print(f'DRIVER=\"{driver}\"')
+")"
+}
 
-cat <<EOF > "$JSON_FILE"
+create_target_dir() {
+    local dir="$1"
+    mkdir -p "$dir"
+}
+
+write_json() {
+    local file="$1"
+    local timestamp="$2"
+    local commit="$3"
+    local hostname="$4"
+    local driver="$5"
+    cat <<EOF > "$file"
 {
-  "timestamp": "$TIMESTAMP",
-  "tt-metal commit": "$(git rev-parse HEAD)"
+  "timestamp": "$timestamp",
+  "tt-metal_commit": "$commit",
+  "hostname": "$hostname",
+  "driver": "$driver"
 }
 EOF
+}
 
-echo "Metal tracking info saved to $JSON_FILE"
+main() {
+    local parent_repo_root
+    parent_repo_root=$(get_parent_repo_root)
+    check_repo_root "$parent_repo_root"
+
+    local timestamp
+    timestamp=$(get_timestamp)
+
+    get_tt_smi_info
+
+    local target_dir="$parent_repo_root/mlp-op-perf_tracking_details"
+    create_target_dir "$target_dir"
+
+    local json_file="$target_dir/tt-metal_tracking_info_${timestamp}.json"
+    local commit
+    commit=$(git rev-parse HEAD)
+
+    write_json "$json_file" "$timestamp" "$commit" "$HOSTNAME" "$DRIVER"
+
+    echo "Metal tracking info saved to $json_file"
+}
+
+main "$@"
