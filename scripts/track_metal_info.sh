@@ -34,11 +34,12 @@ create_target_dir() {
 }
 
 write_json() {
-    local file="$1"
-    local timestamp="$2"
-    local commit="$3"
-    local hostname="$4"
-    local driver="$5"
+    local name="$1"
+    local file="$2"
+    local timestamp="$3"
+    local commit="$4"
+    local hostname="$5"
+    local driver="$6"
     cat <<EOF > "$file"
 {
   "timestamp": "$timestamp",
@@ -59,6 +60,8 @@ main() {
 
     get_tt_smi_info
 
+    OP_NAME="$1"
+
     local target_dir="$parent_repo_root/mlp-op-perf_tracking_details"
     create_target_dir "$target_dir"
 
@@ -66,7 +69,7 @@ main() {
     local commit
     commit=$(git rev-parse HEAD)
 
-    write_json "$json_file" "$timestamp" "$commit" "$HOSTNAME" "$DRIVER"
+    write_json "$OP_NAME" "$json_file" "$timestamp" "$commit" "$HOSTNAME" "$DRIVER"
 
     echo "Metal tracking info saved to $json_file"
 }
