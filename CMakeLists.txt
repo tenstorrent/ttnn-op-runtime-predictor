@@ -43,3 +43,4 @@ CPMAddPackage(
 add_subdirectory(ops)
 add_subdirectory(tests)
 add_subdirectory(train/mlpack/model-regeneration)
+add_subdirectory(scripts)
