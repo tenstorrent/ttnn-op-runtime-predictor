@@ -42,6 +42,7 @@ write_json() {
     local driver="$6"
     cat <<EOF > "$file"
 {
+  "op_name": "$name",
   "timestamp": "$timestamp",
   "tt-metal_commit": "$commit",
   "hostname": "$hostname",
