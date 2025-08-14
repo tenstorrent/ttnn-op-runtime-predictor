@@ -19,9 +19,9 @@ JSON_FILE="$TARGET_DIR/tt-metal_tracking_info_$TIMESTAMP.json"
 
 cat <<EOF > "$JSON_FILE"
 {
-  "test_name": "mlp_op_performance_test",
-  "timestamp": "$TIMESTAMP"
+  "timestamp": "$TIMESTAMP",
+  "tt-metal commit": "$(git rev-parse HEAD)"
 }
 EOF
 
-echo "Test results saved to $JSON_FILE"
+echo "Metal tracking info saved to $JSON_FILE"
