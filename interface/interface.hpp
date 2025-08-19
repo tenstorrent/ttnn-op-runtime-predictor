@@ -18,7 +18,7 @@ template <typename... Args>
 uint64_t get_runtime_from_model(const std::string &op_name, Args &&...args) {
 
   if (op_name == "ttnn::exp") {
-    return predict_exp_runtime(std::forward<Args>(args)...);
+    return predict_eltwise_unary_runtime(op_name, std::forward<Args>(args)...);
   } else {
     return 0;
   }
