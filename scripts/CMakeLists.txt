@@ -1,0 +1,6 @@
+set(TRACKING_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/track_metal_info.sh)
+
+install(
+    PROGRAMS ${TRACKING_SCRIPT}
+    DESTINATION bin
+)
