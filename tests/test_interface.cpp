@@ -15,34 +15,54 @@ using namespace op_perf;
 nlohmann::json create_serialized_tensor(const std::vector<int> &dimensions,
                                         const int &dtype,
                                         const int &buffer_type) {
+    nlohmann::json tensor_json = {
+        {"tensor_spec",
+            {
+                {"logical_shape", dimensions},
+                {"tensor_layout",
+                    {
+                        {"alignment", {{"value", {1, 1, 32, 32}}}},
+                        {"dtype", dtype},
+                        {"memory_config",
+                            {
+                                {"buffer_type", buffer_type},
+                                {"created_with_nd_shard_spec", false},
+                                {"memory_layout", 0}
+                            }
+                        },
+                        {"page_config",
+                            {
+                                {"config",
+                                    {
+                                        {"index", 1},
+                                        {"value",
+                                            {
+                                                {"tile",
+                                                    {
+                                                        {"face_shape", {16, 16}},
+                                                        {"num_faces", 4},
+                                                        {"tile_shape", {32, 32}}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {"storage",
+            {
+                {"index", 1},
+                {"value", nlohmann::json::object()}
+            }
+        }
+    };
 
-  // two json objects are included. First is the tensor, which cannot serialize
-  // tensor dims. The second object is the tensor dims.
-  nlohmann::json tensor_json = {
-      {"storage", {{"index", 0}, {"value", nlohmann::json::object()}}},
-      {"tensor_spec",
-       {{"logical_shape",
-         {{"value", "tt::stl::json::to_json_t: Unsupported type "
-                    "SmallVector<unsigned int>"}}},
-        {"tensor_layout",
-         {{"alignment",
-           {{"value", "tt::stl::json::to_json_t: Unsupported type "
-                      "SmallVector<unsigned int>"}}},
-          {"dtype", dtype},
-          {"memory_config",
-           {{"buffer_type", buffer_type}, {"memory_layout", 0}}},
-          {"page_config",
-           {{"config",
-             {{"index", 0},
-              {"value",
-               {{"tile",
-                 {{"face_shape", {16, 16}},
-                  {"num_faces", 4},
-                  {"tile_shape", {32, 32}}}}}}}}}}}}}}};
-
-  nlohmann::json shape_json = dimensions;
-
-  return nlohmann::json::array({tensor_json, shape_json});
+    return tensor_json;
 }
 
 // exp success test cases (runtime estimate is returned, estimate is > 0)
