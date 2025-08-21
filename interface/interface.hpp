@@ -17,7 +17,7 @@ namespace op_perf {
 template <typename... Args>
 uint64_t get_runtime_from_model(const std::string &op_name, Args &&...args) {
 
-  if (op_name == "ttnn::exp") {
+  if (op_name == "exp") {
     return predict_eltwise_unary_runtime(op_name, std::forward<Args>(args)...);
   } else {
     return 0;
