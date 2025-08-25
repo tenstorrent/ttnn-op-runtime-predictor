@@ -27,7 +27,7 @@ typedef enum Dtype {
 } DType;
 
 typedef enum mem_cfg {
-
+ 
   DRAM = 0,
   L1 = 1,
 
@@ -37,11 +37,8 @@ std::vector<int> get_tensor_dimensions(const nlohmann::json& tensor_dim_array);
 std::vector<int> get_one_hot_dtype(const int &dtype);
 std::vector<int> get_memory_config(const int &memory_config);
 
-/* uint64_t predict_exp_runtime(const nlohmann::json &tensor_and_shape_jsons,
-                             const nlohmann::json &optional_output_layout); */
-
 uint64_t predict_eltwise_unary_runtime(const std::string& op_name, 
-    const nlohmann::json &tensor_and_shape_jsons,
+    const nlohmann::json &tensor_json,
     const nlohmann::json &optional_output_layout);
 
 } // namespace op_perf

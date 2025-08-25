@@ -4,6 +4,7 @@ project(OpModeling LANGUAGES CXX)
 SET(ROOTDIR "${CMAKE_CURRENT_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${ROOTDIR}")
 
+add_definitions(-DOP_CATEGORY_PATH="${CMAKE_CURRENT_SOURCE_DIR}/interface/op_categories/")
 add_definitions(-DMODEL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/train/mlpack/")
 add_definitions(-DMLP_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/train/mlpack/model-regeneration/")
 
@@ -39,7 +40,7 @@ CPMAddPackage(
     "BUILD_GO_SHLIB OFF"
     "BUILD_CLI_EXECUTABLES OFF"
 )
-
+add_subdirectory(interface)
 add_subdirectory(ops)
 add_subdirectory(tests)
 add_subdirectory(train/mlpack/model-regeneration)
