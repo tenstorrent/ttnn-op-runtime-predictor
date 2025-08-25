@@ -1,0 +1,15 @@
+name: On push
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  packages: write
+  checks: write
+
+jobs:
+  spdx:
+    uses: ./.github/check-spdx.yml
+    secrets: inherit
