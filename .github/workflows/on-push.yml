@@ -6,10 +6,17 @@ on:
     branches: [ "main" ]
 
 permissions:
+  contents: read
   packages: write
   checks: write
 
 jobs:
   spdx:
-    uses: ./.github/check-spdx.yml
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: SPDX License Check
+        uses: enarx/spdx@master
+        with:
+          licenses: Apache-2.0
