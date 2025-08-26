@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ops/include/ops.hpp"
+#include "ops.hpp"
 #include "interface_json_utils.hpp"
 #include <cstdint>
 #include <optional>
