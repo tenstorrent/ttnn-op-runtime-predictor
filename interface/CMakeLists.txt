@@ -13,6 +13,7 @@ set(EXTERNAL_LIBRARIES
 target_include_directories(interface_library PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${mlpack_SOURCE_DIR}/src
+    ${ROOTDIR}/ops/include
 )
 
 file(GLOB_RECURSE INTERFACE_SRC *.cpp)
