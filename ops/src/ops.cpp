@@ -89,18 +89,20 @@ std::vector<int> get_memory_config(const int &memory_config) {
   return mem_cfg_vector;
 }
 
-uint64_t predict_exp_runtime(const nlohmann::json &tensor_json,
+uint64_t predict_eltwise_unary_runtime(const std::string& op_name, const nlohmann::json &tensor_json,
                              const nlohmann::json &optional_output_layout) {
 
   if (tensor_json.is_null() || tensor_json.is_number()) {
     return 0;
   }
 
-  // set exp model parameters and model path
+  // set model parameters and model path
   const int input_size = 11;
   const std::vector<int> hidden_layers = {128, 128, 128};
-  const std::string model_path = std::string(MODEL_PATH) + "exp_mlp_model.bin";
-  const std::string scaler_path = std::string(MODEL_PATH) + "exp_scaler.bin";
+
+  //mlp and scaler filepaths
+  const std::string model_path = std::string(MODEL_PATH) + op_name + "_mlp_model.bin";
+  const std::string scaler_path = std::string(MODEL_PATH) + op_name + "_scaler.bin";
 
   // load mlp
   auto model_optional =
@@ -168,5 +170,7 @@ uint64_t predict_exp_runtime(const nlohmann::json &tensor_json,
   }
   return static_cast<uint64_t>(scaler_output(0, 0));
 }
+
+
 
 } // namespace op_perf
