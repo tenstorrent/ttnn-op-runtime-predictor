@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: (c) 2025 Tenstorrent Inc.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #include "interface_json_utils.hpp"
 
 namespace op_perf {
