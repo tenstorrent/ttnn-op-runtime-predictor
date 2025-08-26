@@ -6,7 +6,7 @@
 #include <mlpack.hpp>
 #include <nlohmann/json.hpp>
 
-#include "../interface/interface.hpp"
+#include "interface/interface.hpp"
 
 using namespace op_perf;
 
