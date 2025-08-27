@@ -1,5 +1,9 @@
 add_library(ops_library)
 
+target_compile_definitions(ops_library PUBLIC
+    MODEL_PATH="${ROOTDIR}/train/mlpack/"
+)
+
 set(EXTERNAL_INCLUDE_DIRS
     ${Armadillo_INCLUDE_DIRS}
 )

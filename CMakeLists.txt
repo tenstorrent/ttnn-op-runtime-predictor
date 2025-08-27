@@ -4,10 +4,6 @@ project(OpModeling LANGUAGES CXX)
 SET(ROOTDIR "${CMAKE_CURRENT_SOURCE_DIR}")
 INCLUDE_DIRECTORIES("${ROOTDIR}")
 
-add_definitions(-DOP_CATEGORY_PATH="${CMAKE_CURRENT_SOURCE_DIR}/interface/op_categories/")
-add_definitions(-DMODEL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/train/mlpack/")
-add_definitions(-DMLP_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/train/mlpack/model-regeneration/")
-
 find_package(PkgConfig REQUIRED)
 find_package(GTest REQUIRED)
 find_package(Armadillo REQUIRED)

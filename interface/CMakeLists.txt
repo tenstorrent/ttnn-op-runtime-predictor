@@ -1,5 +1,9 @@
 add_library(interface_library)
 
+target_compile_definitions(interface_library PUBLIC
+    OP_CATEGORY_PATH="${CMAKE_CURRENT_SOURCE_DIR}/op_categories/"
+)
+
 set(EXTERNAL_INCLUDE_DIRS
     ${Armadillo_INCLUDE_DIRS}
 )
