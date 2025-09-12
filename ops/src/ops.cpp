@@ -171,6 +171,15 @@ uint64_t predict_eltwise_unary_runtime(const std::string& op_name, const nlohman
   return static_cast<uint64_t>(scaler_output(0, 0));
 }
 
+uint64_t predict_concatenate_heads_runtime(const std::string& op_name, const nlohmann::json &tensor_json,
+  const nlohmann::json &optional_output_layout) {
+
+  //to be completed when serialization format is finalized
+
+  return 0;
+}
+
+
 
 
 } // namespace op_perf

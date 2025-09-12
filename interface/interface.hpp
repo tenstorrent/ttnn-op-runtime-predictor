@@ -27,6 +27,9 @@ uint64_t get_runtime_from_model(const std::string &op_name, Args &&...args) {
     if (category == "eltwise_unary") {
       return predict_eltwise_unary_runtime(op_name,
                                            std::forward<Args>(args)...);
+    } else if (category == "concatenate_heads") {
+      return predict_concatenate_heads_runtime(
+          op_name, std::forward<Args>(args)...);
     } else {
       return 0;
     }

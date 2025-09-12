@@ -1,3 +1,4 @@
 {
-  "exp": "eltwise_unary"
+  "exp": "eltwise_unary",
+  "concatenate_heads": "concatenate_heads"
 }
