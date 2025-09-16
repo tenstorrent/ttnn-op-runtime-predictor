@@ -25,10 +25,10 @@ def append_dtype(dtype_list, input_dtype):
 def append_memory_config(input_memcfg_list, input_memcfg):
     memcfg = [0] * utils.NUM_BUFFER_TYPES
 
-    if input_memcfg == "{\"buffer_type\":0,\"memory_layout\":0}":
-        memcfg[0] = 1
-    elif input_memcfg == "{\"buffer_type\":1,\"memory_layout\":0}":
-        memcfg[1] = 1
+    if input_memcfg == "{\"buffer_type\":0,\"created_with_nd_shard_spec\":false,\"memory_layout\":0}":
+        memcfg[0] = 1 #DRAM
+    elif input_memcfg == "{\"buffer_type\":1,\"created_with_nd_shard_spec\":false,\"memory_layout\":2}":
+        memcfg[1] = 1 #L1_HEIGHT_SHARDED
     else:
         raise ValueError("Error: memory config buffer type is unspecified")
     input_memcfg_list.append(memcfg)
@@ -49,8 +49,8 @@ def get_shape_dtype_memcfg(test_vectors):
             vector_dict = vectors[id]
 
             input = utils.parse_ints_from_string(vector_dict["input_shape"])
-            input_dtype = vector_dict["input_a_dtype"]
-            input_memcfg = vector_dict["input_a_memory_config"]
+            input_dtype = vector_dict["input_dtype"]
+            input_memcfg = vector_dict["input_memory_config"]
             input_memcfg = input_memcfg["data"]
 
             append_input_shape(input_shape_list, input)
