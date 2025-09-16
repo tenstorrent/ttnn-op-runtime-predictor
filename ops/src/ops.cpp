@@ -217,7 +217,7 @@ uint64_t predict_concatenate_heads_runtime(const nlohmann::json &tensor_json,
   std::vector<int> onehot_dtype = get_one_hot_dtype(ttnn_tensor_dtype);
 
   // specify input memory_config
-  int input_mem_cfg = tensor_json["tensor_spec"]["tensor_layout"]["input_memory_config"]["buffer_type"];
+  int input_mem_cfg = tensor_json["tensor_spec"]["tensor_layout"]["memory_config"]["buffer_type"];
   std::vector<int> input_mem_cfg_vector = get_memory_config(input_mem_cfg);
 
   // specify output memory_config

@@ -41,8 +41,7 @@ uint64_t predict_eltwise_unary_runtime(const std::string& op_name,
     const nlohmann::json &tensor_json,
     const nlohmann::json &optional_output_layout);
 
-uint64_t predict_concatenate_heads_runtime(const std::string& op_name, 
-    const nlohmann::json &tensor_json,
+uint64_t predict_concatenate_heads_runtime(const nlohmann::json &tensor_json,
     const nlohmann::json &optional_output_layout);
 
 
