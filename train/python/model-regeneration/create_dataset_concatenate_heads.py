@@ -23,15 +23,17 @@ def append_dtype(dtype_list, input_dtype):
     dtype_list.append(dtype)
 
 def append_memory_config(input_memcfg_list, input_memcfg):
-    memcfg = [0] * utils.NUM_BUFFER_TYPES
+    memcfg = [0] * (utils.NUM_BUFFER_TYPES + 1)
 
     if input_memcfg == "{\"buffer_type\":0,\"created_with_nd_shard_spec\":false,\"memory_layout\":0}":
         memcfg[0] = 1 #DRAM
+    elif input_memcfg == "{\"buffer_type\":1,\"created_with_nd_shard_spec\":false,\"memory_layout\":0}":
+        memcfg[1] = 1 #L1
     elif input_memcfg == "{\"buffer_type\":1,\"created_with_nd_shard_spec\":false,\"memory_layout\":2}":
-        memcfg[1] = 1 #L1_HEIGHT_SHARDED
+        memcfg[2] = 1 #L1_HEIGHT_SHARDED
     else:
         raise ValueError("Error: memory config buffer type is unspecified")
-    input_memcfg_list.append(memcfg)
+    input_memcfg_list.append(memcfg[0:2]) #only L1, DRAM
 
 #Get tensor shape, dtype, and memory config (L1 / DRAM) from sweep vectors.
 #Returns 3 lists, containing input shapes, ex. [1, 1, 32, 32], datatypes in one hot encoding, ex. [0, 1, 0, 0, 0], and memory config buffer type in one hot encoding, ex. [0,1]
@@ -40,8 +42,8 @@ def get_shape_dtype_memcfg(test_vectors):
 
     input_shape_list = [] #tensor rank must be 4
     dtype_list = [] #bfloat8,bfloat16
-    input_mem_cfg_list = [] #DRAM_MEMORY_CONFIG, L1_MEMORY_CONFIG
-    output_memcfg_list = [] #DRAM_MEMORY_CONFIG, L1_MEMORY_CONFIG
+    input_mem_cfg_list = [] #DRAM_MEMORY_CONFIG, L1_MEMORY_CONFIG, L1_HEIGHT_SHARDED_MEMORY_CONFIG
+    output_memcfg_list = [] #DRAM_MEMORY_CONFIG, L1_MEMORY_CONFIG, L1_HEIGHT_SHARDED_MEMORY_CONFIG
 
     for suite in test_vectors.keys():
         vectors = test_vectors[suite]
