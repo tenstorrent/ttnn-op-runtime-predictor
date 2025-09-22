@@ -149,9 +149,9 @@ auto train_new_mlp(const std::string &op_name, const std::string &op_category,
 
   const std::vector<std::vector<int>> hidden_layers_space =
       hidden_layers_opt ? std::vector<std::vector<int>>{*hidden_layers_opt}
-                        : std::vector<std::vector<int>>{{128, 128, 128},
-                                                        {256, 128, 128},
-                                                        {128, 256, 128}};
+                        : std::vector<std::vector<int>>{{128, 128, 64},
+                                                        {128, 128, 128},
+                                                        {256, 128, 128}};
   const std::vector<int> batch_size_space =
       batch_size_opt ? std::vector<int>{*batch_size_opt}
                      : std::vector<int>{32, 64, 128};
