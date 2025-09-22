@@ -1,5 +1,44 @@
 {
     "models": {
-        
+        "concatenate_heads": {
+            "architecture_config": {
+                "hidden_layers": [
+                    128,
+                    128,
+                    128
+                ],
+                "input_size": 10
+            },
+            "name": "concatenate_heads",
+            "optimizer_config": {
+                "batch_size": 64,
+                "epsilon": 1e-08,
+                "learning_rate": 0.01,
+                "max_iterations": 500000,
+                "momentum_decay": 0.9,
+                "squared_gradient_decay": 0.999,
+                "tolerance": 1e-05
+            }
+        },
+        "create_qkv_heads": {
+            "architecture_config": {
+                "hidden_layers": [
+                    128,
+                    128,
+                    128
+                ],
+                "input_size": 9
+            },
+            "name": "create_qkv_heads",
+            "optimizer_config": {
+                "batch_size": 128,
+                "epsilon": 1e-08,
+                "learning_rate": 0.01,
+                "max_iterations": 500000,
+                "momentum_decay": 0.9,
+                "squared_gradient_decay": 0.999,
+                "tolerance": 1e-05
+            }
+        }
     }
 }

@@ -386,32 +386,32 @@ INSTANTIATE_TEST_SUITE_P(
     CreateQKVHeadsSuccess, CreateQKVHeadsSuccessTest,
     testing::Values(
         // BFLOAT16, nullopt, transpose_k_heads = false
-        std::make_tuple(create_serialized_tensor({1, 1, 32, 32}, BFLOAT16, L1), 8, std::nullopt, false),
-        std::make_tuple(create_serialized_tensor({2, 1, 32, 32}, BFLOAT16, L1), 16, std::nullopt, false),
-        std::make_tuple(create_serialized_tensor({4, 1, 64, 32}, BFLOAT16, L1), 32, std::nullopt, false),
-        std::make_tuple(create_serialized_tensor({6, 1, 96, 32}, BFLOAT16, L1), 48, std::nullopt, false),
-        std::make_tuple(create_serialized_tensor({8, 1, 128, 32}, BFLOAT16, L1), 64, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({1, 1, 32, 1152}, BFLOAT16, L1), 8, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({2, 1, 64, 3072}, BFLOAT16, L1), 16, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({4, 1, 128, 4096}, BFLOAT16, L1), 32, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({6, 1, 256, 6144}, BFLOAT16, L1), 48, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({8, 1, 512, 7168}, BFLOAT16, L1), 64, std::nullopt, false),
 
         // BFLOAT16, num_kv_heads, transpose_k_heads = true
-        std::make_tuple(create_serialized_tensor({1, 1, 32, 32}, BFLOAT16, L1), 8, 8, true),
-        std::make_tuple(create_serialized_tensor({2, 1, 32, 32}, BFLOAT16, L1), 16, 16, true),
-        std::make_tuple(create_serialized_tensor({4, 1, 64, 32}, BFLOAT16, L1), 32, 32, true),
-        std::make_tuple(create_serialized_tensor({6, 1, 96, 32}, BFLOAT16, L1), 48, 24, true),
-        std::make_tuple(create_serialized_tensor({8, 1, 128, 32}, BFLOAT16, L1), 64, 32, true),
+        std::make_tuple(create_serialized_tensor({1, 1, 32, 1152}, BFLOAT16, L1), 8, 8, true),
+        std::make_tuple(create_serialized_tensor({2, 1, 64, 3072}, BFLOAT16, L1), 16, 16, true),
+        std::make_tuple(create_serialized_tensor({4, 1, 128, 4096}, BFLOAT16, L1), 32, 32, true),
+        std::make_tuple(create_serialized_tensor({6, 1, 256, 6144}, BFLOAT16, L1), 48, 24, true),
+        std::make_tuple(create_serialized_tensor({8, 1, 512, 7168}, BFLOAT16, L1), 64, 32, true),
 
         // BFLOAT8_B, nullopt, transpose_k_heads = true
-        std::make_tuple(create_serialized_tensor({1, 1, 32, 32}, BFLOAT8_B, L1), 8, std::nullopt, true),
-        std::make_tuple(create_serialized_tensor({2, 1, 32, 32}, BFLOAT8_B, L1), 16, std::nullopt, true),
-        std::make_tuple(create_serialized_tensor({4, 1, 64, 32}, BFLOAT8_B, L1), 32, std::nullopt, true),
-        std::make_tuple(create_serialized_tensor({6, 1, 96, 32}, BFLOAT8_B, L1), 48, std::nullopt, true),
-        std::make_tuple(create_serialized_tensor({8, 1, 128, 32}, BFLOAT8_B, L1), 64, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({1, 1, 32, 1152}, BFLOAT8_B, L1), 8, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({2, 1, 64, 3072}, BFLOAT8_B, L1), 16, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({4, 1, 128, 4096}, BFLOAT8_B, L1), 32, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({6, 1, 256, 6144}, BFLOAT8_B, L1), 48, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({8, 1, 512, 7168}, BFLOAT8_B, L1), 64, std::nullopt, true),
 
         // BFLOAT8_B, num_kv_heads, transpose_k_heads = false
-        std::make_tuple(create_serialized_tensor({1, 1, 32, 32}, BFLOAT8_B, L1), 8, 8, false),
-        std::make_tuple(create_serialized_tensor({2, 1, 32, 32}, BFLOAT8_B, L1), 16, 16, false),
-        std::make_tuple(create_serialized_tensor({4, 1, 64, 32}, BFLOAT8_B, L1), 32, 32, false),
-        std::make_tuple(create_serialized_tensor({6, 1, 96, 32}, BFLOAT8_B, L1), 48, 24, false),
-        std::make_tuple(create_serialized_tensor({8, 1, 128, 32}, BFLOAT8_B, L1), 64, 32, false)
+        std::make_tuple(create_serialized_tensor({1, 1, 32, 1152}, BFLOAT8_B, L1), 8, 8, false),
+        std::make_tuple(create_serialized_tensor({2, 1, 64, 3072}, BFLOAT8_B, L1), 16, 16, false),
+        std::make_tuple(create_serialized_tensor({4, 1, 128, 4096}, BFLOAT8_B, L1), 32, 32, false),
+        std::make_tuple(create_serialized_tensor({6, 1, 256, 6144}, BFLOAT8_B, L1), 48, 24, false),
+        std::make_tuple(create_serialized_tensor({8, 1, 512, 7168}, BFLOAT8_B, L1), 64, 32, false)
     )
 );
 

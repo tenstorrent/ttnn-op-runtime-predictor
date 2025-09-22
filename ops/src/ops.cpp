@@ -331,6 +331,7 @@ uint64_t predict_create_qkv_heads_runtime(const nlohmann::json &tensor_json,
   if (scaler_output(0, 0) < 0) {
     return 0;
   }
+
   return static_cast<uint64_t>(scaler_output(0, 0));
 }
 
