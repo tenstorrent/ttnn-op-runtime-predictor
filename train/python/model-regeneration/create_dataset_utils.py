@@ -34,6 +34,6 @@ def get_kernel_durations(sweeps_results):
             kernel_duration.append(-1)
             continue
         device_perf_dict = dict["device_perf"]
-        kernel_duration.append(int(device_perf_dict["DEVICE KERNEL DURATION [ns]"]))
+        kernel_duration.append(float(device_perf_dict["DEVICE KERNEL DURATION [ns]"]))
 
     return kernel_duration
