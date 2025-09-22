@@ -7,8 +7,12 @@ import create_dataset_utils as utils
 
 CREATE_QKV_HEADS_NUM_SUPPORTED_DTYPES = 2
 
-def append_input_shape(input_shape_list, input_shape):
+def append_input_shape(input_shape_list, input_shape, input_num_heads, input_num_kv_heads):
     assert len(input_shape) == utils.MAX_TENSOR_RANK, "tensor rank must be 4"
+
+    head_dim = input_shape[3]
+    hidden_dim = (int(input_num_heads) + 2*int(input_num_kv_heads)) * int(head_dim)
+    input_shape[3] = hidden_dim
     input_shape_list.append(input_shape)
 
 # create qkv heads supports only bfloat8 and bfloat16
@@ -54,7 +58,7 @@ def get_shape_dtype_heads(test_vectors):
             input_num_kv_heads = vector_dict["num_kv_heads"]
             input_transpose_k_heads = vector_dict["transpose_k_heads"]
 
-            append_input_shape(input_shape_list, input)
+            append_input_shape(input_shape_list, input, input_num_heads, input_num_kv_heads)
             append_dtype(dtype_list, input_dtype)
             append_num_heads(num_heads_list, input_num_heads, input_num_kv_heads, input_transpose_k_heads)
 
