@@ -446,4 +446,5 @@ INSTANTIATE_TEST_SUITE_P(
         // json args not properly configured
         std::make_tuple("exp", nlohmann::json(), nlohmann::json()),
         // wrong parameter type
-        std::make_tuple("exp", 42, 24)));
+        std::make_tuple("exp", 42, 24)
+    ));
