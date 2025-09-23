@@ -43,8 +43,15 @@ CPMAddPackage(
     "CMAKE_MESSAGE_LOG_LEVEL NOTICE"
 )
 
+CPMAddPackage(
+  NAME pybind11_json
+  GITHUB_REPOSITORY pybind/pybind11_json
+  GIT_TAG 1399451fde59f4d931c72213f209b3e83a07290b
+)
+
 add_subdirectory(interface)
 add_subdirectory(ops)
 add_subdirectory(tests)
 add_subdirectory(train/mlpack/model-regeneration)
 add_subdirectory(scripts)
+add_subdirectory(interface-pybind)
