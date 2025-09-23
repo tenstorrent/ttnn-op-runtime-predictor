@@ -25,8 +25,29 @@ uint64_t get_runtime_from_model(const std::string &op_name, Args &&...args) {
     const std::string &category = op_category_json[op_name];
 
     if (category == "eltwise_unary") {
-      return predict_eltwise_unary_runtime(op_name,
-                                           std::forward<Args>(args)...);
+      if constexpr (sizeof...(args) == 2) {
+        return predict_eltwise_unary_runtime(op_name,
+                                             std::forward<Args>(args)...);
+      } else {
+        throw std::runtime_error(
+            "Error: eltwise_unary expects 2 arguments");
+      }
+    } else if (category == "concatenate_heads") {
+      if constexpr (sizeof...(args) == 2) {
+        return predict_concatenate_heads_runtime(
+            std::forward<Args>(args)...);
+      } else {
+        throw std::runtime_error(
+            "Error: concatenate_heads expects 2 arguments");
+      }
+    } else if (category == "create_qkv_heads") {
+      if constexpr (sizeof...(args) == 4) {
+        return predict_create_qkv_heads_runtime(
+            std::forward<Args>(args)...);
+      } else {
+        throw std::runtime_error(
+            "Error: create_qkv_heads expects 4 arguments");
+      }
     } else {
       return 0;
     }

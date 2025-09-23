@@ -1,5 +1,91 @@
 {
     "models": {
-        
+        "concatenate_heads": {
+            "architecture_config": {
+                "hidden_layers": [
+                    128,
+                    128,
+                    128
+                ],
+                "input_size": 10
+            },
+            "name": "concatenate_heads",
+            "optimizer_config": {
+                "batch_size": 64,
+                "epsilon": 1e-08,
+                "learning_rate": 0.01,
+                "max_iterations": 500000,
+                "momentum_decay": 0.9,
+                "squared_gradient_decay": 0.999,
+                "tolerance": 1e-05
+            },
+            "metal_tracking_info": {
+                "op_name": "concatenate_heads",
+                "timestamp": "20250918_UTC",
+                "tt-metal_commit": "20b59dcd0cbf63f2c5a9269fbbe217f715b4211d",
+                "hostname": "yyzc-wh-01-special-brapanan-for-reservation-36641",
+                "driver": "TT-KMD 2.4.0",
+                "board_type": "n150",
+                "device_name": "Wormhole"
+            }
+        },
+        "create_qkv_heads": {
+            "architecture_config": {
+                "hidden_layers": [
+                    128,
+                    128,
+                    128
+                ],
+                "input_size": 9
+            },
+            "name": "create_qkv_heads",
+            "optimizer_config": {
+                "batch_size": 128,
+                "epsilon": 1e-08,
+                "learning_rate": 0.01,
+                "max_iterations": 500000,
+                "momentum_decay": 0.9,
+                "squared_gradient_decay": 0.999,
+                "tolerance": 1e-05
+            },
+            "metal_tracking_info": {
+                "op_name": "create_qkv_heads",
+                "timestamp": "20250922_UTC",
+                "tt-metal_commit": "20b59dcd0cbf63f2c5a9269fbbe217f715b4211d",
+                "hostname": "yyzc-wh-01-special-brapanan-for-reservation-36641",
+                "driver": "TT-KMD 2.4.0",
+                "board_type": "n150",
+                "device_name": "Wormhole"
+            }
+        },
+        "exp": {
+            "architecture_config": {
+                "hidden_layers": [
+                    128,
+                    128,
+                    128
+                ],
+                "input_size": 11
+            },
+            "name": "exp",
+            "optimizer_config": {
+                "batch_size": 512,
+                "epsilon": 1e-08,
+                "learning_rate": 0.001,
+                "max_iterations": 500000,
+                "momentum_decay": 0.9,
+                "squared_gradient_decay": 0.999,
+                "tolerance": 1e-05
+            },
+            "metal_tracking_info": {
+                "op_name": "exp",
+                "timestamp": "20250709_UTC",
+                "tt-metal_commit": "87144607f757092c2c0cc817d12a8942d30fbfc9",
+                "hostname": "aus-wh-05-special-brapanan-for-reservation-36641",
+                "driver": "TT-KMD 2.4.0",
+                "board_type": "n300 L",
+                "device_name": "Wormhole"
+            }
+        }
     }
 }

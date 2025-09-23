@@ -171,6 +171,168 @@ uint64_t predict_eltwise_unary_runtime(const std::string& op_name, const nlohman
   return static_cast<uint64_t>(scaler_output(0, 0));
 }
 
+uint64_t predict_concatenate_heads_runtime(const nlohmann::json &tensor_json,
+  const nlohmann::json &output_layout) {
 
+  //to be completed when serialization format is finalized
+  if (tensor_json.is_null() || tensor_json.is_number()) {
+    return 0;
+  }
+
+  //set model parameters and model path
+  const int input_size = 10;
+  const std::vector<int> hidden_layers = {128, 128, 128};
+
+  //mlp and scaler filepaths
+  const std::string model_path = std::string(MODEL_PATH) + "concatenate_heads_mlp_model.bin";
+  const std::string scaler_path = std::string(MODEL_PATH) + "concatenate_heads_scaler.bin";
+
+  //load mlp
+  auto model_optional =
+    load_mlpack_model(model_path, input_size, hidden_layers);
+  if (!model_optional.has_value()) {
+    return 0;
+  }
+
+  mlpack::data::StandardScaler scaler;
+  try {
+    mlpack::data::Load(scaler_path, "scaler", scaler, true);
+  } catch (std::exception &e) {
+    return 0;
+  }
+  auto &model = *model_optional;
+
+  //get input, process it into arma::vec
+  //specify dimension
+  if (tensor_json["tensor_spec"]["logical_shape"].size() != 4) {
+    // allowed tensor dim is 4
+    return 0;
+  }
+  nlohmann::json tensor_dim_array = tensor_json["tensor_spec"]["logical_shape"];
+  std::vector<int> tensor_dim = tensor_dim_array;
+
+  // specify datatype
+  int ttnn_tensor_dtype =
+    tensor_json["tensor_spec"]["tensor_layout"]["dtype"];
+  std::vector<int> onehot_dtype = get_one_hot_dtype(ttnn_tensor_dtype);
+
+  // specify input memory_config
+  int input_mem_cfg = tensor_json["tensor_spec"]["tensor_layout"]["memory_config"]["buffer_type"];
+  std::vector<int> input_mem_cfg_vector = get_memory_config(input_mem_cfg);
+
+  // specify output memory_config
+  int output_mem_cfg = output_layout["buffer_type"];
+  std::vector<int> output_mem_cfg_vector = get_memory_config(output_mem_cfg);
+
+  // create input vector
+  arma::vec input = {
+    static_cast<double>(tensor_dim[0]),
+    static_cast<double>(tensor_dim[1]),
+    static_cast<double>(tensor_dim[2]),
+    static_cast<double>(tensor_dim[3]),
+    static_cast<double>(onehot_dtype[0]),
+    static_cast<double>(onehot_dtype[1]),
+    static_cast<double>(input_mem_cfg_vector[0]),
+    static_cast<double>(input_mem_cfg_vector[1]),
+    static_cast<double>(output_mem_cfg_vector[0]),
+    static_cast<double>(output_mem_cfg_vector[1])
+  };
+
+  arma::vec scaler_scaled;
+  scaler.Transform(input, scaler_scaled);
+
+  //model inference
+  arma::mat scaler_output;
+  model.Predict(scaler_scaled, scaler_output);
+
+  //some small tensors have small runtime, and the runtime inference may be
+  //negative. In this case, return 0.
+  if (scaler_output(0, 0) < 0) {
+    return 0;
+  }
+  return static_cast<uint64_t>(scaler_output(0, 0));
+}
+
+uint64_t predict_create_qkv_heads_runtime(const nlohmann::json &tensor_json,
+    const int &num_heads,
+    const std::optional<int>& num_kv_heads,
+    const bool &transpose_k_heads
+    ) {
+
+  if (tensor_json.is_null() || tensor_json.is_number()) {
+    return 0;
+  }
+
+  // set model parameters and model path
+  const int input_size = 9;
+  const std::vector<int> hidden_layers = {128, 128, 128};
+
+  //mlp and scaler filepaths
+  const std::string model_path = std::string(MODEL_PATH) + "create_qkv_heads_mlp_model.bin";
+  const std::string scaler_path = std::string(MODEL_PATH) + "create_qkv_heads_scaler.bin";
+
+  // load mlp
+  auto model_optional =
+      load_mlpack_model(model_path, input_size, hidden_layers);
+  if (!model_optional.has_value()) {
+    return 0;
+  }
+  auto &model = *model_optional;
+
+  mlpack::data::StandardScaler scaler;
+  try {
+    mlpack::data::Load(scaler_path, "scaler", scaler, true);
+  } catch (std::exception &e) {
+    return 0;
+  }
+
+  // get input, process it into arma::vec
+
+  // specify dimension
+  if (tensor_json["tensor_spec"]["logical_shape"].size() != 4) {
+    // max allowed tensor dim is 4
+    return 0;
+  }
+  std::vector<int> tensor_dim_array =
+      get_tensor_dimensions(tensor_json["tensor_spec"]["logical_shape"]);
+
+  // specify datatype
+  int ttnn_tensor_dtype =
+      tensor_json["tensor_spec"]["tensor_layout"]["dtype"];
+  std::vector<int> onehot_dtype = get_one_hot_dtype(ttnn_tensor_dtype);
+
+  int num_kv_heads_val = num_kv_heads.has_value() ? num_kv_heads.value() : num_heads;
+  
+  int transpose_k_heads_int = transpose_k_heads ? 1 : 0;
+
+  // create input vector
+  arma::vec input = {
+
+      static_cast<double>(tensor_dim_array[0]),
+      static_cast<double>(tensor_dim_array[1]),
+      static_cast<double>(tensor_dim_array[2]),
+      static_cast<double>(tensor_dim_array[3]),
+      static_cast<double>(onehot_dtype[0]),
+      static_cast<double>(onehot_dtype[1]),
+      static_cast<double>(num_heads),
+      static_cast<double>(num_kv_heads_val),
+      static_cast<double>(transpose_k_heads_int)
+
+  };
+
+  arma::vec scaler_scaled;
+  scaler.Transform(input, scaler_scaled);
+
+  // model inference
+  arma::mat scaler_output;
+  model.Predict(scaler_scaled, scaler_output);
+  // some small tensors have small runtime, and the runtime inference may be
+  // negative. In this case, return 0.
+  if (scaler_output(0, 0) < 0) {
+    return 0;
+  }
+
+  return static_cast<uint64_t>(scaler_output(0, 0));
+}
 
 } // namespace op_perf

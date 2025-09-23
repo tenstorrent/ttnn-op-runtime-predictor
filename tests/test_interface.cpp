@@ -292,6 +292,129 @@ INSTANTIATE_TEST_SUITE_P(
                                                  L1),
                         nlohmann::json())));
 
+// concatenate_heads success test cases (runtime estimate is returned, estimate is > 0)
+class ConcatenateHeadsSuccessTest
+    : public testing::TestWithParam<
+          std::tuple<nlohmann::json, nlohmann::json>> {};
+
+TEST_P(ConcatenateHeadsSuccessTest, ReturnsPositiveRuntime) {
+    auto [arg1, arg2] = GetParam();
+    auto runtime = predict_concatenate_heads_runtime(arg1, arg2);
+    EXPECT_GT(runtime, 0) << "runtime is " << runtime;
+}
+
+//test bfloat16 and bfloat8, only DRAM memory config, 20 tests total
+INSTANTIATE_TEST_SUITE_P(
+    ConcatenateHeadsSuccess, ConcatenateHeadsSuccessTest,
+    testing::Values(
+        std::make_tuple(
+            create_serialized_tensor({4, 32, 32, 32}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({4, 32, 32, 32}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({8, 64, 64, 32}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({8, 64, 64, 32}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({2, 128, 32, 32}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({2, 128, 32, 32}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({16, 32, 32, 32}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({16, 32, 32, 32}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({4, 256, 32, 32}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({4, 256, 32, 32}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({8, 32, 128, 32}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({8, 32, 128, 32}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({2, 32, 32, 128}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({2, 32, 32, 128}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({4, 64, 64, 64}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({4, 64, 64, 64}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({8, 32, 32, 64}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({8, 32, 32, 64}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({16, 16, 32, 32}, BFLOAT16, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}})),
+        std::make_tuple(
+            create_serialized_tensor({16, 16, 32, 32}, BFLOAT8_B, DRAM),
+            nlohmann::json({{"buffer_type", DRAM}}))
+    )
+);
+
+//create_qkv_heads success test cases (runtime estimate is returned, estimate is > 0)
+class CreateQKVHeadsSuccessTest
+    : public testing::TestWithParam<
+            std::tuple<nlohmann::json, int, std::optional<int>, bool>> {};
+
+TEST_P(CreateQKVHeadsSuccessTest, ReturnsPositiveRuntime) {
+    auto [tensorspec, num_heads, num_kv_heads, transpose_k_heads] = GetParam();
+    auto runtime = predict_create_qkv_heads_runtime(tensorspec, num_heads, num_kv_heads, transpose_k_heads);
+    EXPECT_GT(runtime, 0) << "runtime is " << runtime;
+}
+
+// 20 tests total
+INSTANTIATE_TEST_SUITE_P(
+    CreateQKVHeadsSuccess, CreateQKVHeadsSuccessTest,
+    testing::Values(
+        // BFLOAT16, nullopt, transpose_k_heads = false
+        std::make_tuple(create_serialized_tensor({1, 1, 32, 1152}, BFLOAT16, L1), 8, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({2, 1, 64, 3072}, BFLOAT16, L1), 16, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({4, 1, 128, 4096}, BFLOAT16, L1), 32, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({6, 1, 256, 6144}, BFLOAT16, L1), 48, std::nullopt, false),
+        std::make_tuple(create_serialized_tensor({8, 1, 512, 7168}, BFLOAT16, L1), 64, std::nullopt, false),
+
+        // BFLOAT16, num_kv_heads, transpose_k_heads = true
+        std::make_tuple(create_serialized_tensor({1, 1, 32, 1152}, BFLOAT16, L1), 8, 8, true),
+        std::make_tuple(create_serialized_tensor({2, 1, 64, 3072}, BFLOAT16, L1), 16, 16, true),
+        std::make_tuple(create_serialized_tensor({4, 1, 128, 4096}, BFLOAT16, L1), 32, 32, true),
+        std::make_tuple(create_serialized_tensor({6, 1, 256, 6144}, BFLOAT16, L1), 48, 24, true),
+        std::make_tuple(create_serialized_tensor({8, 1, 512, 7168}, BFLOAT16, L1), 64, 32, true),
+
+        // BFLOAT8_B, nullopt, transpose_k_heads = true
+        std::make_tuple(create_serialized_tensor({1, 1, 32, 1152}, BFLOAT8_B, L1), 8, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({2, 1, 64, 3072}, BFLOAT8_B, L1), 16, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({4, 1, 128, 4096}, BFLOAT8_B, L1), 32, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({6, 1, 256, 6144}, BFLOAT8_B, L1), 48, std::nullopt, true),
+        std::make_tuple(create_serialized_tensor({8, 1, 512, 7168}, BFLOAT8_B, L1), 64, std::nullopt, true),
+
+        // BFLOAT8_B, num_kv_heads, transpose_k_heads = false
+        std::make_tuple(create_serialized_tensor({1, 1, 32, 1152}, BFLOAT8_B, L1), 8, 8, false),
+        std::make_tuple(create_serialized_tensor({2, 1, 64, 3072}, BFLOAT8_B, L1), 16, 16, false),
+        std::make_tuple(create_serialized_tensor({4, 1, 128, 4096}, BFLOAT8_B, L1), 32, 32, false),
+        std::make_tuple(create_serialized_tensor({6, 1, 256, 6144}, BFLOAT8_B, L1), 48, 24, false),
+        std::make_tuple(create_serialized_tensor({8, 1, 512, 7168}, BFLOAT8_B, L1), 64, 32, false)
+    )
+);
+
 // exp input parameter validation test cases
 class ExpInvalidInputTest
     : public testing::TestWithParam<
@@ -323,4 +446,5 @@ INSTANTIATE_TEST_SUITE_P(
         // json args not properly configured
         std::make_tuple("exp", nlohmann::json(), nlohmann::json()),
         // wrong parameter type
-        std::make_tuple("exp", 42, 24)));
+        std::make_tuple("exp", 42, 24)
+    ));

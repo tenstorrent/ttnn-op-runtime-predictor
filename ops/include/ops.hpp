@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <optional>
 
 #include <nlohmann/json.hpp>
 
@@ -40,5 +41,14 @@ std::vector<int> get_memory_config(const int &memory_config);
 uint64_t predict_eltwise_unary_runtime(const std::string& op_name, 
     const nlohmann::json &tensor_json,
     const nlohmann::json &optional_output_layout);
+
+uint64_t predict_concatenate_heads_runtime(const nlohmann::json &tensor_json,
+    const nlohmann::json &optional_output_layout);
+
+uint64_t predict_create_qkv_heads_runtime(const nlohmann::json &tensor_json,
+    const int &num_heads,
+    const std::optional<int>& num_kv_heads,
+    const bool &transpose_k_heads
+    );
 
 } // namespace op_perf
