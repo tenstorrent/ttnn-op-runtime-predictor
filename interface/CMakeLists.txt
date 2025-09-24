@@ -1,4 +1,5 @@
-add_library(interface_library)
+add_library(interface_library STATIC)
+set_target_properties(interface_library PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_compile_definitions(interface_library PUBLIC
     OP_CATEGORY_PATH="${CMAKE_CURRENT_SOURCE_DIR}/op_categories/"

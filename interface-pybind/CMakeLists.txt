@@ -14,3 +14,7 @@ target_link_libraries(ttnn_op_runtime_predictor PRIVATE
     ops_library
     pybind11_json
 )
+
+install(TARGETS ttnn_op_runtime_predictor
+    LIBRARY DESTINATION .
+)

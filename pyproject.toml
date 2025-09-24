@@ -1,0 +1,22 @@
+[build-system]
+requires = ["scikit-build-core", "pybind11"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "ttnn_op_runtime_predictor"
+version = "0.1.0"
+description = "TTNN-Op-Runtime-Predictor contains models that predict the runtime of TTNN ops."
+requires-python = ">=3.8"
+authors = [{name = "Brandon Rapanan", email = "brapanan@tenstorrent.com"}]
+dependencies = []
+
+[tool.scikit-build]
+# This tells scikit-build-core where to find the Python package
+# that contains your compiled module.
+wheel.packages = ["ttnn_op_runtime_predictor"]
+
+# All CMake settings are grouped under this table
+[tool.scikit-build.cmake]
+verbose = true
+minimum-version = "3.30"
+args = []  # extra cmake args if needed
