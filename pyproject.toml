@@ -7,7 +7,12 @@ name = "ttnn_op_runtime_predictor"
 version = "0.1.0"
 description = "TTNN-Op-Runtime-Predictor contains models that predict the runtime of TTNN ops."
 requires-python = ">=3.8"
-authors = [{name = "Brandon Rapanan", email = "brapanan@tenstorrent.com"}]
+authors = [
+    {name = "Brandon Rapanan", email = "brapanan@tenstorrent.com"},
+    {name = "Armin Ale", email = "arminale@tenstorrent.com"},
+    {name = "Xander Chin", email = "xchin@tenstorrent.com"},
+    {name = "Guangyu Feng", email = "gfeng@tenstorrent.com"}
+]
 dependencies = []
 
 [tool.scikit-build]
