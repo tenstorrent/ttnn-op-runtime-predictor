@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: (c) 2025 Tenstorrent AI ULC
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #include "pybind11_json/pybind11_json.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
