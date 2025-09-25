@@ -46,7 +46,7 @@ CPMAddPackage(
 CPMAddPackage(
   NAME pybind11_json
   GITHUB_REPOSITORY pybind/pybind11_json
-  GIT_TAG 1399451fde59f4d931c72213f209b3e83a07290b
+  GIT_TAG 0.2.14
 )
 
 add_subdirectory(interface)
