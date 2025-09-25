@@ -14,9 +14,7 @@ find_package(LAPACK REQUIRED)
 add_definitions(-DARMA_DONT_USE_WRAPPER)
 
 include(CTest)
-
-list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(CPM)
+include(cmake/CPM.cmake)
 
 CPMAddPackage(
     NAME nlohmann_json
@@ -36,8 +34,24 @@ CPMAddPackage(
     "BUILD_GO_SHLIB OFF"
     "BUILD_CLI_EXECUTABLES OFF"
 )
+
+CPMAddPackage(
+  NAME pybind11
+  GITHUB_REPOSITORY pybind/pybind11
+  GIT_TAG v2.13.6
+  OPTIONS 
+    "CMAKE_MESSAGE_LOG_LEVEL NOTICE"
+)
+
+CPMAddPackage(
+  NAME pybind11_json
+  GITHUB_REPOSITORY pybind/pybind11_json
+  GIT_TAG 0.2.14
+)
+
 add_subdirectory(interface)
 add_subdirectory(ops)
 add_subdirectory(tests)
 add_subdirectory(train/mlpack/model-regeneration)
 add_subdirectory(scripts)
+add_subdirectory(interface-pybind)

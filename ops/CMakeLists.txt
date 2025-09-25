@@ -1,4 +1,5 @@
-add_library(ops_library)
+add_library(ops_library STATIC)
+set_target_properties(ops_library PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_compile_definitions(ops_library PUBLIC
     MODEL_PATH="${ROOTDIR}/train/mlpack/"
