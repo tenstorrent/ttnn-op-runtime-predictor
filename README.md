@@ -31,11 +31,47 @@ This repo also contains a C++ and Python API for querying the trained models. Th
 
 -----
 # Getting Started
-**Environment setup and build instructions to be added here.**
 
------
+## Install Dependencies
+
+```bash
+sudo apt-get update
+sudo apt-get install libarmadillo-dev libensmallen-dev libcereal-dev
+```
+
+## Clone and Build
+
+```bash
+git clone git@github.com:tenstorrent/ttnn-op-runtime-predictor.git
+cd ttnn-op-runtime-predictor
+mkdir build && cd build
+cmake ..
+make
+```
+
+## Run
+
 # Using the Python API (Experimental)
-**Python API build and installation instructions to be added here**
+
+## Install Dependencies
+
+```bash
+sudo apt-get update
+sudo apt-get install libarmadillo-dev libensmallen-dev libcereal-dev
+```
+
+## Clone Repository
+
+```bash
+git clone git@github.com:tenstorrent/ttnn-op-runtime-predictor.git
+cd ttnn-op-runtime-predictor
+```
+
+## Install Python API
+
+```bash
+pip install .
+```
 
 To see examples using the python API to query models on the repo, see [interface-pybind/usage.py](interface-pybind/usage.py).
 
