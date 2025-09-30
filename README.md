@@ -1,18 +1,79 @@
+# TTNN Op Runtime Predictor
+
 <div align="center">
 
-<h1>TTNN-Op-Runtime-Predictor</h1>
+<h1>
+
+[Hardware](https://tenstorrent.com/cards/) | [Discord](https://discord.gg/tenstorrent) | [Join Us](https://boards.greenhouse.io/tenstorrent?gh_src=22e462047us) 
+
+</h1>
+
+<br>
+
+**ttnn-op-runtime-predictor** is a framework for training and querying empirical performance models for [TTNN](https://docs.tenstorrent.com/tt-metal/latest/ttnn/index.html) tensor operations. 
+
 
 </div>
 
-## Overview
+----
+# What is this repo?
+TTNN Op Runtime Predictor is a framework for training and querying empirical performance models for TTNN tensor operations. 
 
-TTNN-Op-Runtime-Predictor contains models which predict the runtime of TTNN ops and has a C++ / Python API to access them. These models are small MLPs (Multi Layer Perceptrons) trained using datasets generated from the [tt-metal](https://github.com/tenstorrent/tt-metal) [sweep framework](https://github.com/tenstorrent/tt-metal/blob/main/tests/README.md). Each model is trained on a specific TTNN op using [mlpack](https://www.mlpack.org/doc/index.html), a C++ machine learning library. The op's input parameters are passed in and a runtime prediction is returned. These models can be queried for runtime predictions using an API in the repo that accepts JSON serialized op parameters.
+This is accomplished by generating a dataset for each operation using the [tt-metal sweep framework](https://github.com/tenstorrent/tt-metal/blob/main/tests/README.md) to collect runtimes for various parameterizations. Then, the scripts in this repo postprocess the collected data and and train small MLPs (Multi Layer Perceptrons) using [mlpack](https://www.mlpack.org/doc/index.html). Each TTNN operation must be modeled separately. The trained models are committed to this repo, and a list of currently available models is below.
 
-## Using the Python API
+This repo also contains a C++ and Python API for querying the trained models. The op's input parameters are passed in as JSON and a runtime prediction is returned.
+
+
+-----
+# Related Tenstorrent Projects
+- [tt-mlir](https://github.com/tenstorrent/tt-mlir)
+- [tt-metalium](https://github.com/tenstorrent/tt-metal)
+
+-----
+# Getting Started
+
+## Install Dependencies
+
+```bash
+sudo apt-get update
+sudo apt-get install libarmadillo-dev libensmallen-dev libcereal-dev
+```
+
+## Clone and Build
+
+```bash
+git clone git@github.com:tenstorrent/ttnn-op-runtime-predictor.git
+cd ttnn-op-runtime-predictor
+mkdir build && cd build
+cmake ../
+make
+```
+
+# Using the Python API (Experimental)
+
+## Install Dependencies
+
+```bash
+sudo apt-get update
+sudo apt-get install libarmadillo-dev libensmallen-dev libcereal-dev
+```
+
+## Clone Repository
+
+```bash
+git clone git@github.com:tenstorrent/ttnn-op-runtime-predictor.git
+cd ttnn-op-runtime-predictor
+```
+
+## Install Python API
+
+```bash
+pip install .
+```
 
 To see examples using the python API to query models on the repo, see [interface-pybind/usage.py](interface-pybind/usage.py).
 
-## Available Models
+# Available Operation Models
 
 | TTNN Op                                  | Device        | TT-Metal Commit                                                                                                                      | R²        |
 |------------------------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
@@ -20,10 +81,10 @@ To see examples using the python API to query models on the repo, see [interface
 | ttnn.experimental.create_qkv_heads       | Wormhole n150 | [20b59dcd0cbf63f2c5a9269fbbe217f715b4211d](https://github.com/tenstorrent/tt-metal/commit/20b59dcd0cbf63f2c5a9269fbbe217f715b4211d)  | 0.998757  |
 | ttnn.exp                                 | Wormhole n150 | [87144607f757092c2c0cc817d12a8942d30fbfc9](https://github.com/tenstorrent/tt-metal/commit/87144607f757092c2c0cc817d12a8942d30fbfc9)  | 0.95      |
 
-## Model Regeneration
+# Model Regeneration
 
-TTNN-Op-Runtime-Predictor contains scripts for dataset generation and model training / retraining. 
+The operation models in this repo are only valid as of the commit they are trained on. Changes to the operation or the runtime infrastructure could change the performance characteristics of an operation. The framework in TTNN Op Runtime Predictor is built with this in mind to allow few-button (i.e. mostly automated) model regeneration. 
 
-1. **Generate Training Data:** Run sweep in tt-metal to collect op runtime. Models are trained on device kernel duration [ns] obtained from running sweeps with flag `--device-perf`.
+1. **Generate Training Data:** Run sweeps in tt-metal to collect op runtime. Models are trained on device kernel duration (in nanoseconds) obtained from running sweeps with flag `--device-perf`.
 2. **Preprocess Data:** Use script `create_dataset.py` in [train/python/model-regeneration](train/python/model-regeneration/) to aggregate collected data into a dataset.
 3. **Train Models:** Use scripts `train_new_mlp.cpp` or `retrain_mlp.cpp`  in [train/mlpack/model-regeneration](train/mlpack/model-regeneration) to train or retrain MLPs using the processed datasets. 
