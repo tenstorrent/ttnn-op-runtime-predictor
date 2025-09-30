@@ -45,11 +45,9 @@ sudo apt-get install libarmadillo-dev libensmallen-dev libcereal-dev
 git clone git@github.com:tenstorrent/ttnn-op-runtime-predictor.git
 cd ttnn-op-runtime-predictor
 mkdir build && cd build
-cmake ..
+cmake ../
 make
 ```
-
-## Run
 
 # Using the Python API (Experimental)
 
