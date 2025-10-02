@@ -48,6 +48,15 @@ uint64_t get_runtime_from_model(const std::string &op_name, Args &&...args) {
         throw std::runtime_error(
             "Error: create_qkv_heads expects 4 arguments");
       }
+    } else if (category == "paged_scaled_dot_product_attention_decode") {
+      //revisit number of args
+      if constexpr (sizeof...(args) == 13) {
+        return predict_paged_sdpa_decode_runtime(
+            std::forward<Args>(args)...);
+      } else {
+        throw std::runtime_error(
+            "Error: paged_scaled_dot_product_attention_decode expects 13 arguments");
+      }
     } else {
       return 0;
     }

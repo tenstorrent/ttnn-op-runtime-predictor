@@ -335,4 +335,32 @@ uint64_t predict_create_qkv_heads_runtime(const nlohmann::json &tensor_json,
   return static_cast<uint64_t>(scaler_output(0, 0));
 }
 
+uint64_t predict_paged_sdpa_decode_runtime(
+  const nlohmann::json &q_tensor_json,
+  const nlohmann::json &k_tensor_json,
+  const nlohmann::json &v_tensor_json,
+  const nlohmann::json &page_table_tensor_json,
+  const nlohmann::json &optional_cur_pos_tensor_json,
+  const nlohmann::json &optional_attn_mask_tensor_json,
+  const bool &is_causal,
+  const float &optional_scale,
+  const int &k_chunk_size,
+  const int &input_dtype,
+  const int &output_memory_config,
+  const int &math_fidelity,
+  const int &math_approx_mode,
+  const int &fp32_dest_acc_en,
+  const int &packer_l1_acc,
+  const int &exp_approx_mode
+) {
+
+  //to be completed when serialization format is finalized
+  if (q_tensor_json.is_null() || q_tensor_json.is_number() ||
+      k_tensor_json.is_null() || k_tensor_json.is_number() ||
+      v_tensor_json.is_null() || v_tensor_json.is_number() ||
+      page_table_tensor_json.is_null() || page_table_tensor_json.is_number()) {
+    return 0;
+  }
+}
+
 } // namespace op_perf
