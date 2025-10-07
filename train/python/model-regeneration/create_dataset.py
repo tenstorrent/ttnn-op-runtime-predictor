@@ -6,12 +6,14 @@ import argparse
 from create_dataset_eltwise_unary import create_dataset_eltwise_unary
 from create_dataset_concatenate_heads import create_dataset_concatenate_heads
 from create_dataset_create_qkv_heads import create_dataset_create_qkv_heads
+from create_dataset_paged_sdpa_decode import create_dataset_paged_sdpa_decode
 
 #Global dictionary of op_name : op_category. Add here as needed.
 OP_CATEGORIES = {
     "exp": "eltwise_unary",
     "concatenate_heads": "concatenate_heads",
     "create_qkv_heads": "create_qkv_heads",
+    "paged_scaled_dot_product_attention_decode": "paged_scaled_dot_product_attention_decode",
 }
 
 def main(op_name, op_category, sweep_vectors, sweep_results):
@@ -27,6 +29,8 @@ def main(op_name, op_category, sweep_vectors, sweep_results):
         create_dataset_concatenate_heads(op_name, sweep_vectors, sweep_results)
     elif op_category == "create_qkv_heads":
         create_dataset_create_qkv_heads(op_name, sweep_vectors, sweep_results)
+    elif op_category == "paged_scaled_dot_product_attention_decode":
+        create_dataset_paged_sdpa_decode(op_name, sweep_vectors, sweep_results)
     else:
         raise ValueError(f"Unsupported op category: {op_category}")
         
