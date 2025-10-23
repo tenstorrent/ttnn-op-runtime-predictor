@@ -1,4 +1,4 @@
-### Contributing to tt-npe
+### Contributing to ttnn-op-runtime-predictor
 
 ### Development Process
 
