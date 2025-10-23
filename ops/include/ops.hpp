@@ -31,6 +31,7 @@ typedef enum mem_cfg {
  
   DRAM = 0,
   L1 = 1,
+  L1_HEIGHT_SHARDED = 2,
 
 } mem_cfg;
 
@@ -50,5 +51,19 @@ uint64_t predict_create_qkv_heads_runtime(const nlohmann::json &tensor_json,
     const std::optional<int>& num_kv_heads,
     const bool &transpose_k_heads
     );
+
+uint64_t predict_paged_sdpa_decode_runtime(
+  const nlohmann::json &q_tensor_json,
+  const nlohmann::json &k_tensor_json,
+  const nlohmann::json &v_tensor_json,
+  const nlohmann::json &page_table_tensor_json,
+  const bool &is_causal,
+  const nlohmann::json &optional_attn_mask_tensor_json,
+  const bool& cur_pos_empty,
+  const nlohmann::json &optional_cur_pos_tensor_json,
+  const float &optional_scale,
+  const nlohmann::json &optional_output_memory_config,
+  const nlohmann::json &optional_compute_kernel_config
+  );
 
 } // namespace op_perf

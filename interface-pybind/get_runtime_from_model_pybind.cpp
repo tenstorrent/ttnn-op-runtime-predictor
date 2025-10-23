@@ -39,4 +39,5 @@ PYBIND11_MODULE(ttnn_op_runtime_predictor, m) {
         py::arg("op_name") = "create_qkv_heads", py::arg("tensor_json"),
         py::arg("num_heads"), py::arg("num_kv_heads") = std::nullopt,
         py::arg("transpose_k_heads") = false);
+      //add def for paged sdpa decode        
 }
