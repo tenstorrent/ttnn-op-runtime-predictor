@@ -13,5 +13,5 @@ distributed as part of the software:
 - armadillo - [License available here](https://gitlab.com/conradsnicta/armadillo-code/-/blob/15.0.x/LICENSE.txt)
 - ensmallen - [License available here](https://github.com/mlpack/ensmallen/blob/master/LICENSE.txt)
 - cereal - [License available here](https://github.com/USCiLab/cereal/blob/master/LICENSE)
-- pybind11 [License available here](https://github.com/pybind/pybind11/blob/master/LICENSE)
-- pybind11_json - [License avialable here](https://github.com/pybind/pybind11_json/blob/master/LICENSE)
+- pybind11 - [License available here](https://github.com/pybind/pybind11/blob/master/LICENSE)
+- pybind11_json - [License available here](https://github.com/pybind/pybind11_json/blob/master/LICENSE)
