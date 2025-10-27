@@ -350,10 +350,12 @@ uint64_t predict_paged_sdpa_decode_runtime(
     const std::optional<nlohmann::json> &optional_cur_pos_tensor_json,
     const std::optional<nlohmann::json> &optional_attn_mask_tensor_json,
     const bool &is_causal, const float &optional_scale, const int &k_chunk_size,
-    const int &input_dtype, const int &output_memory_config,
-    const int &math_fidelity, const int &math_approx_mode,
-    const int &fp32_dest_acc_en, const int &packer_l1_acc,
-    const int &exp_approx_mode, const bool &use_) {
+    const int &q_chunk_size, const int &input_dtype,
+    const int &output_memory_config, const int &math_fidelity,
+    const int &math_approx_mode, const int &fp32_dest_acc_en,
+    const int &packer_l1_acc, const int &exp_approx_mode,
+    const bool &use_sdpa_program_config,
+    const bool &use_compute_kernel_config) {
 
   // to be completed when serialization format is finalized
   if (q_tensor_json.is_null() || q_tensor_json.is_number() ||
@@ -471,5 +473,70 @@ uint64_t predict_paged_sdpa_decode_runtime(
   // scale is provided as float directly
 
   // sdpa program config params
+  if (!use_sdpa_program_config) {
+    k_chunk_size = -1;
+    q_chunk_size = -1;
+    exp_approx_mode = -1;
+  }
+
+  if (!use_compute_kernel_config) {
+    // set compute kernel config params
+    math_fidelity = -1;
+    math_approx_mode = -1;
+    fp32_dest_acc_en = -1;
+    packer_l1_acc = -1;
+  }
+
+  // create input vector
+  arma::vec input = {static_cast<double>(q_tensor_dim[0]),
+                     static_cast<double>(q_tensor_dim[1]),
+                     static_cast<double>(q_tensor_dim[2]),
+                     static_cast<double>(q_tensor_dim[3]),
+                     static_cast<double>(k_tensor_dim[0]),
+                     static_cast<double>(k_tensor_dim[1]),
+                     static_cast<double>(k_tensor_dim[2]),
+                     static_cast<double>(k_tensor_dim[3]),
+                     static_cast<double>(v_tensor_dim[0]),
+                     static_cast<double>(v_tensor_dim[1]),
+                     static_cast<double>(v_tensor_dim[2]),
+                     static_cast<double>(v_tensor_dim[3]),
+                     static_cast<double>(page_table_tensor_dim[0]),
+                     static_cast<double>(page_table_tensor_dim[1]),
+                     static_cast<double>(cur_pos_tensor_dim[0]),
+                     static_cast<double>(attn_mask_tensor_dim[0]),
+                     static_cast<double>(attn_mask_tensor_dim[1]),
+                     static_cast<double>(attn_mask_tensor_dim[2]),
+                     static_cast<double>(attn_mask_tensor_dim[3]),
+                     static_cast<double>(onehot_dtype[0]),
+                     static_cast<double>(onehot_dtype[1]),
+                     static_cast<double>(input_mem_cfg_vector[0]),
+                     static_cast<double>(input_mem_cfg_vector[1]),
+                     static_cast<double>(output_mem_cfg_vector[0]),
+                     static_cast<double>(output_mem_cfg_vector[1]),
+                     static_cast<double>(is_causal_int),
+                     static_cast<double>(optional_scale),
+                     static_cast<double>(k_chunk_size),
+                     static_cast<double>(q_chunk_size),
+                     static_cast<double>(exp_approx_mode),
+                     static_cast<double>(use_sdpa_program_config ? 1 : 0),
+                     static_cast<double>(math_fidelity),
+                     static_cast<double>(math_approx_mode),
+                     static_cast<double>(fp32_dest_acc_en),
+                     static_cast<double>(packer_l1_acc),
+                     static_cast<double>(use_compute_kernel_config ? 1 : 0)};
+
+  arma::vec scaler_scaled;
+  scaler.Transform(input, scaler_scaled);
+  // model inference
+  arma::mat scaler_output;
+  model.Predict(scaler_scaled, scaler_output);
+
+  // some small tensors have small runtime, and the runtime inference may be
+  // negative. In this case, return 0.
+  if (scaler_output(0, 0) < 0) {
+    return 0;
+  }
+
+  return static_cast<uint64_t>(scaler_output(0, 0));
 
 } // namespace op_perf
