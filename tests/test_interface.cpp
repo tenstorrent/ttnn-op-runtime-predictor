@@ -415,6 +415,54 @@ INSTANTIATE_TEST_SUITE_P(
     )
 );
 
+//paged_sdpa_decode success test cases (runtime estimate is returned, estimate is > 0)
+class PagedSDPADecodeSuccessTest
+    : public testing::TestWithParam<
+          std::tuple<nlohmann::json, nlohmann::json, nlohmann::json,
+                     nlohmann::json, bool, float, nlohmann::json,
+                     nlohmann::json>> {};
+
+TEST_P(PagedSDPADecodeSuccessTest, ReturnsPositiveRuntime) {
+  auto [q_tensor, k_tensor, v_tensor, page_table_tensor, is_causal, scale,
+        compute_kernel_config, program_config] = GetParam();
+
+  auto runtime = predict_paged_sdpa_decode_runtime(
+      q_tensor, k_tensor, v_tensor, page_table_tensor, std::nullopt,
+      std::nullopt, is_causal, scale, program_config, compute_kernel_config);
+  EXPECT_GT(runtime, 0) << "runtime is " << runtime;
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    PagedSDPADecodeSuccess, PagedSDPADecodeSuccessTest,
+    testing::Values(
+        // BFLOAT16, is_causal=true, scale=1.0
+        std::make_tuple(
+            create_serialized_tensor({1, 8, 32, 64}, BFLOAT16, L1),
+            create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
+            create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
+            create_serialized_tensor({1, 128, 0, 0}, BFLOAT16, L1), true, 1.0f,
+            nlohmann::json({{"math_fidelity", 0},
+                            {"math_approx_mode", true},
+                            {"fp32_dest_acc_en", true},
+                            {"packer_l1_acc", false}}),
+            nlohmann::json({{"q_chunk_size", 128},
+                            {"k_chunk_size", 64},
+                            {"exp_approx_mode", 0}})),
+        // BFLOAT8_B, is_causal=false, scale=0.5
+        std::make_tuple(
+            create_serialized_tensor({1, 16, 32, 64}, BFLOAT8_B, L1),
+            create_serialized_tensor({1, 16, 1024, 64}, BFLOAT8_B, L1),
+            create_serialized_tensor({1, 16, 1024, 64}, BFLOAT8_B, L1),
+            create_serialized_tensor({1, 64, 0, 0}, BFLOAT8_B, L1), false, 0.5f,
+            nlohmann::json({{"math_fidelity", 1},
+                            {"math_approx_mode", false},
+                            {"fp32_dest_acc_en", false},
+                            {"packer_l1_acc", true}}),
+            nlohmann::json({{"q_chunk_size", 64},
+                            {"k_chunk_size", 32},
+                            {"exp_approx_mode", 1}}))));
+  
+
 // exp input parameter validation test cases
 class ExpInvalidInputTest
     : public testing::TestWithParam<

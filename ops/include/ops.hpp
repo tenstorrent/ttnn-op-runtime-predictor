@@ -5,9 +5,9 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 #include <nlohmann/json.hpp>
 
@@ -28,42 +28,41 @@ typedef enum Dtype {
 } DType;
 
 typedef enum mem_cfg {
- 
+
   DRAM = 0,
   L1 = 1,
   L1_HEIGHT_SHARDED = 2,
 
 } mem_cfg;
 
-std::vector<int> get_tensor_dimensions(const nlohmann::json& tensor_dim_array);
+std::vector<int> get_tensor_dimensions(const nlohmann::json &tensor_dim_array);
 std::vector<int> get_one_hot_dtype(const int &dtype);
 std::vector<int> get_memory_config(const int &memory_config);
 
-uint64_t predict_eltwise_unary_runtime(const std::string& op_name, 
-    const nlohmann::json &tensor_json,
-    const nlohmann::json &optional_output_layout);
+uint64_t
+predict_eltwise_unary_runtime(const std::string &op_name,
+                              const nlohmann::json &tensor_json,
+                              const nlohmann::json &optional_output_layout);
 
-uint64_t predict_concatenate_heads_runtime(const nlohmann::json &tensor_json,
-    const nlohmann::json &optional_output_layout);
+uint64_t
+predict_concatenate_heads_runtime(const nlohmann::json &tensor_json,
+                                  const nlohmann::json &optional_output_layout);
 
-uint64_t predict_create_qkv_heads_runtime(const nlohmann::json &tensor_json,
-    const int &num_heads,
-    const std::optional<int>& num_kv_heads,
-    const bool &transpose_k_heads
-    );
+uint64_t predict_create_qkv_heads_runtime(
+    const nlohmann::json &tensor_json, const int &num_heads,
+    const std::optional<int> &num_kv_heads, const bool &transpose_k_heads);
 
 uint64_t predict_paged_sdpa_decode_runtime(
-  const nlohmann::json &q_tensor_json,
-  const nlohmann::json &k_tensor_json,
-  const nlohmann::json &v_tensor_json,
-  const nlohmann::json &page_table_tensor_json,
-  const bool &is_causal,
-  const std::optional<nlohmann::json> &optional_attn_mask_tensor_json,
-  const bool& cur_pos_empty,
-  const std::optional<nlohmann::json> &optional_cur_pos_tensor_json,
-  const float &optional_scale,
-  const nlohmann::json &optional_output_memory_config,
-  const nlohmann::json &optional_compute_kernel_config
-  );
+    const nlohmann::json &q_tensor_json, const nlohmann::json &k_tensor_json,
+    const nlohmann::json &v_tensor_json,
+    const nlohmann::json &page_table_tensor_json,
+    const std::optional<nlohmann::json> &optional_cur_pos_tensor_json,
+    const std::optional<nlohmann::json> &optional_attn_mask_tensor_json,
+    const bool &is_causal, const float &optional_scale, const int &k_chunk_size,
+    const int &q_chunk_size, const int &input_dtype,
+    const int &output_memory_config, const int &math_fidelity,
+    const int &math_approx_mode, const int &fp32_dest_acc_en,
+    const int &packer_l1_acc, const int &exp_approx_mode,
+    const bool &use_sdpa_program_config, const bool &use_compute_kernel_config);
 
 } // namespace op_perf
