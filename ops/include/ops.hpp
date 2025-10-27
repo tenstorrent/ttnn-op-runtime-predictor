@@ -58,10 +58,11 @@ uint64_t predict_paged_sdpa_decode_runtime(
     const nlohmann::json &page_table_tensor_json,
     const std::optional<nlohmann::json> &optional_cur_pos_tensor_json,
     const std::optional<nlohmann::json> &optional_attn_mask_tensor_json,
-    const bool &is_causal, const float &optional_scale, int &k_chunk_size,
-    int &q_chunk_size, const int &input_dtype, const int &output_memory_config,
-    int &math_fidelity, int &math_approx_mode, int &fp32_dest_acc_en,
-    int &packer_l1_acc, int &exp_approx_mode,
-    const bool &use_sdpa_program_config, const bool &use_compute_kernel_config);
+    const bool &is_causal, const float &optional_scale, const int &k_chunk_size,
+    const int &q_chunk_size, const nlohmann::json &output_memory_config,
+    const int &math_fidelity, const int &math_approx_mode,
+    const int &fp32_dest_acc_en, const int &packer_l1_acc,
+    const int &exp_approx_mode, const bool &use_sdpa_program_config,
+    const bool &use_compute_kernel_config);
 
 } // namespace op_perf

@@ -346,11 +346,11 @@ uint64_t predict_paged_sdpa_decode_runtime(
     const nlohmann::json &page_table_tensor_json,
     const std::optional<nlohmann::json> &optional_cur_pos_tensor_json,
     const std::optional<nlohmann::json> &optional_attn_mask_tensor_json,
-    const bool &is_causal, const float &optional_scale, int &k_chunk_size,
-    int &q_chunk_size, const int &input_dtype, const int &output_memory_config,
-    int &math_fidelity, int &math_approx_mode, int &fp32_dest_acc_en,
-    int &packer_l1_acc, int &exp_approx_mode,
-    const bool &use_sdpa_program_config,
+    const bool &is_causal, const float &optional_scale, const int &k_chunk_size,
+    const int &q_chunk_size, const nlohmann::json &output_memory_config,
+    const int &math_fidelity, const int &math_approx_mode,
+    const int &fp32_dest_acc_en, const int &packer_l1_acc,
+    const int &exp_approx_mode, const bool &use_sdpa_program_config,
     const bool &use_compute_kernel_config) {
 
   // to be completed when serialization format is finalized
@@ -460,7 +460,7 @@ uint64_t predict_paged_sdpa_decode_runtime(
   std::vector<int> input_mem_cfg_vector = get_memory_config(input_mem_cfg);
 
   // specify output memory_config
-  int output_mem_cfg = output_memory_config;
+  int output_mem_cfg = output_memory_config["buffer_type"];
   std::vector<int> output_mem_cfg_vector = get_memory_config(output_mem_cfg);
 
   // is_causal to int
@@ -469,18 +469,27 @@ uint64_t predict_paged_sdpa_decode_runtime(
   // scale is provided as float directly
 
   // sdpa program config params
+  int k_chunk_size_val = k_chunk_size;
+  int q_chunk_size_val = q_chunk_size;
+  int exp_approx_mode_val = exp_approx_mode;
+
   if (!use_sdpa_program_config) {
-    k_chunk_size = -1;
-    q_chunk_size = -1;
-    exp_approx_mode = -1;
+    k_chunk_size_val = -1;
+    q_chunk_size_val = -1;
+    exp_approx_mode_val = -1;
   }
+
+  int math_fidelity_val = math_fidelity;
+  int math_approx_mode_val = math_approx_mode;
+  int fp32_dest_acc_en_val = fp32_dest_acc_en;
+  int packer_l1_acc_val = packer_l1_acc;
 
   if (!use_compute_kernel_config) {
     // set compute kernel config params
-    math_fidelity = -1;
-    math_approx_mode = -1;
-    fp32_dest_acc_en = -1;
-    packer_l1_acc = -1;
+    math_fidelity_val = -1;
+    math_approx_mode_val = -1;
+    fp32_dest_acc_en_val = -1;
+    packer_l1_acc_val = -1;
   }
 
   // create input vector
@@ -511,14 +520,14 @@ uint64_t predict_paged_sdpa_decode_runtime(
                      static_cast<double>(output_mem_cfg_vector[1]),
                      static_cast<double>(is_causal_int),
                      static_cast<double>(optional_scale),
-                     static_cast<double>(k_chunk_size),
-                     static_cast<double>(q_chunk_size),
-                     static_cast<double>(exp_approx_mode),
+                     static_cast<double>(k_chunk_size_val),
+                     static_cast<double>(q_chunk_size_val),
+                     static_cast<double>(exp_approx_mode_val),
                      static_cast<double>(use_sdpa_program_config ? 1 : 0),
-                     static_cast<double>(math_fidelity),
-                     static_cast<double>(math_approx_mode),
-                     static_cast<double>(fp32_dest_acc_en),
-                     static_cast<double>(packer_l1_acc),
+                     static_cast<double>(math_fidelity_val),
+                     static_cast<double>(math_approx_mode_val),
+                     static_cast<double>(fp32_dest_acc_en_val),
+                     static_cast<double>(packer_l1_acc_val),
                      static_cast<double>(use_compute_kernel_config ? 1 : 0)};
 
   arma::vec scaler_scaled;

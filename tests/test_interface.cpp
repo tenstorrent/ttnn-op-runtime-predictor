@@ -391,23 +391,24 @@ INSTANTIATE_TEST_SUITE_P(
 // paged_sdpa_decode success test cases (runtime estimate is returned, estimate
 // is > 0)
 class PagedSDPADecodeSuccessTest
-    : public testing::TestWithParam<std::tuple<
-          nlohmann::json, nlohmann::json, nlohmann::json, nlohmann::json,
-          std::optional<nlohmann::json>, std::optional<nlohmann::json>, bool,
-          float, int, int, int, int, int, int, int, int, int, bool, bool>> {};
+    : public testing::TestWithParam<
+          std::tuple<nlohmann::json, nlohmann::json, nlohmann::json,
+                     nlohmann::json, std::optional<nlohmann::json>,
+                     std::optional<nlohmann::json>, bool, float, int, int,
+                     nlohmann::json, int, int, int, int, int, bool, bool>> {};
 
 TEST_P(PagedSDPADecodeSuccessTest, ReturnsPositiveRuntime) {
   auto [q_tensor, k_tensor, v_tensor, page_table_tensor, cur_pos_tensor,
         attn_mask_tensor, is_causal, scale, k_chunk_size, q_chunk_size,
-        input_dtype, output_memory_config, math_fidelity, math_approx_mode,
-        fp32_dest_acc_en, packer_l1_acc, exp_approx_mode,
-        use_sdpa_program_config, use_compute_kernel_config] = GetParam();
+        output_memory_config, math_fidelity, math_approx_mode, fp32_dest_acc_en,
+        packer_l1_acc, exp_approx_mode, use_sdpa_program_config,
+        use_compute_kernel_config] = GetParam();
 
   auto runtime = predict_paged_sdpa_decode_runtime(
       q_tensor, k_tensor, v_tensor, page_table_tensor, cur_pos_tensor,
       attn_mask_tensor, is_causal, scale, k_chunk_size, q_chunk_size,
-      input_dtype, output_memory_config, math_fidelity, math_approx_mode,
-      fp32_dest_acc_en, packer_l1_acc, exp_approx_mode, use_sdpa_program_config,
+      output_memory_config, math_fidelity, math_approx_mode, fp32_dest_acc_en,
+      packer_l1_acc, exp_approx_mode, use_sdpa_program_config,
       use_compute_kernel_config);
   EXPECT_GT(runtime, 0) << "runtime is " << runtime;
 }
@@ -421,7 +422,10 @@ INSTANTIATE_TEST_SUITE_P(
             create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 128}, BFLOAT16, L1), std::nullopt,
-            std::nullopt, true, 1.0f, 64, 128, BFLOAT16, L1,
+            std::nullopt, true, 1.0f, 64, 128,
+            nlohmann::json{{"buffer_type", L1},
+                           {"created_with_nd_shard_spec", false},
+                           {"memory_layout", 0}},
             0 /*math_fidelity*/, true /*math_approx_mode*/,
             true /*fp32_dest_acc_en*/, false /*packer_l1_acc*/, 0, true, true),
         // BFLOAT8_B, is_causal=false, scale=0.5
@@ -430,7 +434,10 @@ INSTANTIATE_TEST_SUITE_P(
             create_serialized_tensor({1, 16, 1024, 64}, BFLOAT8_B, L1),
             create_serialized_tensor({1, 16, 1024, 64}, BFLOAT8_B, L1),
             create_serialized_tensor({1, 64}, BFLOAT8_B, L1), std::nullopt,
-            std::nullopt, false, 0.5f, 32, 64, BFLOAT8_B, DRAM,
+            std::nullopt, false, 0.5f, 32, 64,
+            nlohmann::json{{"buffer_type", DRAM},
+                           {"created_with_nd_shard_spec", false},
+                           {"memory_layout", 0}},
             1 /*math_fidelity*/, false /*math_approx_mode*/,
             false /*fp32_dest_acc_en*/, true /*packer_l1_acc*/, 1, true, true),
         // With cur_pos tensor
@@ -440,7 +447,11 @@ INSTANTIATE_TEST_SUITE_P(
             create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 128}, BFLOAT16, L1),
             create_serialized_tensor({128}, UINT32, L1), std::nullopt, true,
-            1.0f, 64, 128, BFLOAT16, L1, 0, true, true, false, 0, true, true),
+            1.0f, 64, 128,
+            nlohmann::json{{"buffer_type", L1},
+                           {"created_with_nd_shard_spec", false},
+                           {"memory_layout", 0}},
+            0, true, true, false, 0, true, true),
         // With attn_mask tensor
         std::make_tuple(
             create_serialized_tensor({1, 8, 32, 64}, BFLOAT16, L1),
@@ -448,23 +459,33 @@ INSTANTIATE_TEST_SUITE_P(
             create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 128}, BFLOAT16, L1), std::nullopt,
             create_serialized_tensor({1, 1, 32, 2048}, BFLOAT16, L1), true,
-            1.0f, 64, 128, BFLOAT16, L1, 0, true, true, false, 0, true, true),
+            1.0f, 64, 128,
+            nlohmann::json{{"buffer_type", L1},
+                           {"created_with_nd_shard_spec", false},
+                           {"memory_layout", 0}},
+            0, true, true, false, 0, true, true),
         // No sdpa_program_config
         std::make_tuple(
             create_serialized_tensor({1, 8, 32, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 128}, BFLOAT16, L1), std::nullopt,
-            std::nullopt, true, 1.0f, 64, 128, BFLOAT16, L1, 0, true, true,
-            false, 0, false, true),
+            std::nullopt, true, 1.0f, 64, 128,
+            nlohmann::json{{"buffer_type", L1},
+                           {"created_with_nd_shard_spec", false},
+                           {"memory_layout", 0}},
+            0, true, true, false, 0, false, true),
         // No compute_kernel_config
         std::make_tuple(
             create_serialized_tensor({1, 8, 32, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 8, 2048, 64}, BFLOAT16, L1),
             create_serialized_tensor({1, 128}, BFLOAT16, L1), std::nullopt,
-            std::nullopt, true, 1.0f, 64, 128, BFLOAT16, L1, 0, true, true,
-            false, 0, true, false),
+            std::nullopt, true, 1.0f, 64, 128,
+            nlohmann::json{{"buffer_type", L1},
+                           {"created_with_nd_shard_spec", false},
+                           {"memory_layout", 0}},
+            0, true, true, false, 0, true, false),
         // With all optional args
         std::make_tuple(
             create_serialized_tensor({1, 8, 32, 64}, BFLOAT16, L1),
@@ -473,7 +494,11 @@ INSTANTIATE_TEST_SUITE_P(
             create_serialized_tensor({1, 128}, BFLOAT16, L1),
             create_serialized_tensor({128}, UINT32, L1),
             create_serialized_tensor({1, 1, 32, 2048}, BFLOAT16, L1), true,
-            1.0f, 64, 128, BFLOAT16, L1, 0, true, true, false, 0, false, false)
+            1.0f, 64, 128,
+            nlohmann::json{{"buffer_type", L1},
+                           {"created_with_nd_shard_spec", false},
+                           {"memory_layout", 0}},
+            0, true, true, false, 0, false, false)
 
             ));
 
