@@ -34,13 +34,10 @@ load_mlpack_model(const std::string &model_path, int input_size,
   return model;
 }
 
-std::vector<int> get_tensor_dimensions(const nlohmann::json &tensor_dim_array,
-                                       const std::optional<int> &max_rank) {
+std::vector<int> get_tensor_dimensions(const nlohmann::json &tensor_dim_array) {
   std::vector<int> dim_vector = tensor_dim_array;
   const int length = dim_vector.size();
-  if (!max_rank.has_value()) {
-    max_rank = length;
-  }
+  const int max_rank = 4;
 
   for (int i = length; i < max_rank; ++i) {
     dim_vector.push_back(0);
@@ -135,7 +132,7 @@ predict_eltwise_unary_runtime(const std::string &op_name,
     return 0;
   }
   std::vector<int> tensor_dim_array =
-      get_tensor_dimensions(tensor_json["tensor_spec"]["logical_shape"], 4);
+      get_tensor_dimensions(tensor_json["tensor_spec"]["logical_shape"]);
 
   // specify datatype
   int ttnn_tensor_dtype = tensor_json["tensor_spec"]["tensor_layout"]["dtype"];
@@ -302,7 +299,7 @@ uint64_t predict_create_qkv_heads_runtime(
     return 0;
   }
   std::vector<int> tensor_dim_array =
-      get_tensor_dimensions(tensor_json["tensor_spec"]["logical_shape"], 4);
+      get_tensor_dimensions(tensor_json["tensor_spec"]["logical_shape"]);
 
   // specify datatype
   int ttnn_tensor_dtype = tensor_json["tensor_spec"]["tensor_layout"]["dtype"];
@@ -349,11 +346,10 @@ uint64_t predict_paged_sdpa_decode_runtime(
     const nlohmann::json &page_table_tensor_json,
     const std::optional<nlohmann::json> &optional_cur_pos_tensor_json,
     const std::optional<nlohmann::json> &optional_attn_mask_tensor_json,
-    const bool &is_causal, const float &optional_scale, const int &k_chunk_size,
-    const int &q_chunk_size, const int &input_dtype,
-    const int &output_memory_config, const int &math_fidelity,
-    const int &math_approx_mode, const int &fp32_dest_acc_en,
-    const int &packer_l1_acc, const int &exp_approx_mode,
+    const bool &is_causal, const float &optional_scale, int &k_chunk_size,
+    int &q_chunk_size, const int &input_dtype, const int &output_memory_config,
+    int &math_fidelity, int &math_approx_mode, int &fp32_dest_acc_en,
+    int &packer_l1_acc, int &exp_approx_mode,
     const bool &use_sdpa_program_config,
     const bool &use_compute_kernel_config) {
 
@@ -437,7 +433,7 @@ uint64_t predict_paged_sdpa_decode_runtime(
     }
     nlohmann::json cur_pos_tensor_dim_array =
         optional_cur_pos_tensor_json.value()["tensor_spec"]["logical_shape"];
-    cur_pos_tensor_dim = cur_pos_tensor_dim_array;
+    cur_pos_tensor_dim = cur_pos_tensor_dim_array.get<std::vector<int>>();
   }
 
   // specify optional attention mask tensor dimension
@@ -450,7 +446,7 @@ uint64_t predict_paged_sdpa_decode_runtime(
     }
     nlohmann::json attn_mask_tensor_dim_array =
         optional_attn_mask_tensor_json.value()["tensor_spec"]["logical_shape"];
-    attn_mask_tensor_dim = attn_mask_tensor_dim_array;
+    attn_mask_tensor_dim = attn_mask_tensor_dim_array.get<std::vector<int>>();
   }
 
   // specify datatype
@@ -538,5 +534,6 @@ uint64_t predict_paged_sdpa_decode_runtime(
   }
 
   return static_cast<uint64_t>(scaler_output(0, 0));
+}
 
 } // namespace op_perf
