@@ -9,6 +9,15 @@
                 ],
                 "input_size": 10
             },
+            "metal_tracking_info": {
+                "board_type": "n150",
+                "device_name": "Wormhole",
+                "driver": "TT-KMD 2.4.0",
+                "hostname": "yyzc-wh-01-special-brapanan-for-reservation-36641",
+                "op_name": "concatenate_heads",
+                "timestamp": "20250918_UTC",
+                "tt-metal_commit": "20b59dcd0cbf63f2c5a9269fbbe217f715b4211d"
+            },
             "name": "concatenate_heads",
             "optimizer_config": {
                 "batch_size": 64,
@@ -18,15 +27,6 @@
                 "momentum_decay": 0.9,
                 "squared_gradient_decay": 0.999,
                 "tolerance": 1e-05
-            },
-            "metal_tracking_info": {
-                "op_name": "concatenate_heads",
-                "timestamp": "20250918_UTC",
-                "tt-metal_commit": "20b59dcd0cbf63f2c5a9269fbbe217f715b4211d",
-                "hostname": "yyzc-wh-01-special-brapanan-for-reservation-36641",
-                "driver": "TT-KMD 2.4.0",
-                "board_type": "n150",
-                "device_name": "Wormhole"
             }
         },
         "create_qkv_heads": {
@@ -38,6 +38,15 @@
                 ],
                 "input_size": 9
             },
+            "metal_tracking_info": {
+                "board_type": "n150",
+                "device_name": "Wormhole",
+                "driver": "TT-KMD 2.4.0",
+                "hostname": "yyzc-wh-01-special-brapanan-for-reservation-36641",
+                "op_name": "create_qkv_heads",
+                "timestamp": "20250922_UTC",
+                "tt-metal_commit": "20b59dcd0cbf63f2c5a9269fbbe217f715b4211d"
+            },
             "name": "create_qkv_heads",
             "optimizer_config": {
                 "batch_size": 128,
@@ -47,15 +56,6 @@
                 "momentum_decay": 0.9,
                 "squared_gradient_decay": 0.999,
                 "tolerance": 1e-05
-            },
-            "metal_tracking_info": {
-                "op_name": "create_qkv_heads",
-                "timestamp": "20250922_UTC",
-                "tt-metal_commit": "20b59dcd0cbf63f2c5a9269fbbe217f715b4211d",
-                "hostname": "yyzc-wh-01-special-brapanan-for-reservation-36641",
-                "driver": "TT-KMD 2.4.0",
-                "board_type": "n150",
-                "device_name": "Wormhole"
             }
         },
         "exp": {
@@ -67,6 +67,15 @@
                 ],
                 "input_size": 11
             },
+            "metal_tracking_info": {
+                "board_type": "n300 L",
+                "device_name": "Wormhole",
+                "driver": "TT-KMD 2.4.0",
+                "hostname": "aus-wh-05-special-brapanan-for-reservation-36641",
+                "op_name": "exp",
+                "timestamp": "20250709_UTC",
+                "tt-metal_commit": "87144607f757092c2c0cc817d12a8942d30fbfc9"
+            },
             "name": "exp",
             "optimizer_config": {
                 "batch_size": 512,
@@ -76,15 +85,35 @@
                 "momentum_decay": 0.9,
                 "squared_gradient_decay": 0.999,
                 "tolerance": 1e-05
+            }
+        },
+        "paged_scaled_dot_product_attention_decode": {
+            "architecture_config": {
+                "hidden_layers": [
+                    256,
+                    128,
+                    128
+                ],
+                "input_size": 36
             },
             "metal_tracking_info": {
-                "op_name": "exp",
-                "timestamp": "20250709_UTC",
-                "tt-metal_commit": "87144607f757092c2c0cc817d12a8942d30fbfc9",
-                "hostname": "aus-wh-05-special-brapanan-for-reservation-36641",
+                "board_type": "n150",
+                "device_name": "Wormhole",
                 "driver": "TT-KMD 2.4.0",
-                "board_type": "n300 L",
-                "device_name": "Wormhole"
+                "hostname": "yyzc-wh-01-special-brapanan-for-reservation-36641",
+                "op_name": "create_qkv_heads",
+                "timestamp": "20251014_UTC",
+                "tt-metal_commit": "20b59dcd0cbf63f2c5a9269fbbe217f715b4211d"
+            },
+            "name": "paged_scaled_dot_product_attention_decode",
+            "optimizer_config": {
+                "batch_size": 128,
+                "epsilon": 1e-08,
+                "learning_rate": 0.01,
+                "max_iterations": 1000000,
+                "momentum_decay": 0.9,
+                "squared_gradient_decay": 0.999,
+                "tolerance": 1e-05
             }
         }
     }

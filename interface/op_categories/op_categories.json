@@ -1,5 +1,6 @@
 {
   "exp": "eltwise_unary",
   "concatenate_heads": "concatenate_heads",
-  "create_qkv_heads": "create_qkv_heads"
+  "create_qkv_heads": "create_qkv_heads",
+  "paged_scaled_dot_product_attention_decode": "paged_scaled_dot_product_attention_decode"
 }

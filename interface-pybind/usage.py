@@ -149,3 +149,81 @@ exp_runtime_prediction = torp.get_runtime_from_model(
 )
 
 print(f"Predicted runtime for exp: {exp_runtime_prediction}")
+
+#-----------------------------predict ttnn.transformer.paged_scaled_dot_product_attention_decode runtime-----------------------------
+
+#this is the expected json layout for paged_scaled_dot_product_attention_decode input tensors
+q_tensor_json = {
+    "tensor_spec": {
+        "logical_shape": [1, 32, 1, 64],
+        "tensor_layout": {
+            "dtype": 0,  #BF16
+            "memory_config": {
+                "buffer_type": 0  #DRAM
+            }
+        }
+    }
+}
+k_tensor_json = {
+    "tensor_spec": {
+        "logical_shape": [1, 4, 512, 64],
+        "tensor_layout": {
+            "dtype": 0,  #BF16
+            "memory_config": {
+                "buffer_type": 0  #DRAM
+            }
+        }
+    }
+}
+v_tensor_json = {
+    "tensor_spec": {
+        "logical_shape": [1, 4, 512, 64],
+        "tensor_layout": {
+            "dtype": 0,  #BF16
+            "memory_config": {
+                "buffer_type": 0  #DRAM
+            }
+        }
+    }
+}
+page_table_tensor_json = {
+    "tensor_spec": {
+        "logical_shape": [1, 1],
+        "tensor_layout": {
+            "dtype": 2,  #UINT32
+            "memory_config": {
+                "buffer_type": 0  #DRAM
+            }
+        }
+    }
+}
+
+#specifying output memory config for paged_scaled_dot_product_attention_decode
+output_memory_config_2 = {
+    "buffer_type": 0  #DRAM
+}
+
+#query model
+psdpa_decode_runtime_prediction = torp.get_runtime_from_model(
+    op_name="paged_scaled_dot_product_attention_decode",
+    q_tensor_json=q_tensor_json,
+    k_tensor_json=k_tensor_json,
+    v_tensor_json=v_tensor_json,
+    page_table_tensor_json=page_table_tensor_json,
+    optional_cur_pos_tensor_json=None,
+    optional_attn_mask_tensor_json=None,
+    is_causal=True,
+    output_memory_config=output_memory_config_2,
+    optional_scale=8.0,
+    k_chunk_size=64,
+    q_chunk_size=64,
+    math_fidelity=2,
+    math_approx_mode=1,
+    fp32_dest_acc_en=1,
+    packer_l1_acc=1,
+    exp_approx_mode=1,
+    use_sdpa_program_config=True,
+    use_compute_kernel_config=True
+)
+
+print(f"Predicted runtime for paged_sdpa_decode: {psdpa_decode_runtime_prediction}")
